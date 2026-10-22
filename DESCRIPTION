@@ -1,0 +1,13 @@
+Package: winpipe
+Title: Interface to Windows Named Pipes
+Version: 0.0.0.9000
+Authors@R: 
+    person("Jonas", "Lieth", , "jonas.lieth@gesis.org", role = c("aut", "cre", "cph"))
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
+Encoding: UTF-8
+OS_type: windows
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+LinkingTo: 
+    cpp11
