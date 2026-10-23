@@ -16,6 +16,7 @@ winpipe(
   server = !np_exists(name),
   blocking = FALSE,
   sddl = sd_default(),
+  max_instances = Inf,
   timeout = getOption("timeout")
 )
 

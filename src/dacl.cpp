@@ -1,6 +1,4 @@
-// Security descriptor helpers: query the default DACL, parse an SDDL string
-// (owner, group, DACL, SACL) into an R list, and build an SDDL string back
-// from such a list.
+// Security descriptor helpers
 
 #include <cpp11.hpp>
 #include <windows.h>

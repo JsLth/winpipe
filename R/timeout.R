@@ -3,7 +3,7 @@
 #' @description
 #' Get or set the I/O timeout of a pipe connection
 #'
-#' @inheritParams np_info
+#' @inheritParams np_config
 #' @param timeout \code{[numeric]}
 #' 
 #' New timeout in seconds. Can be \code{Inf} to wait forever.
@@ -13,8 +13,8 @@
 #' @export
 #' @rdname timeout
 #' 
-#' @examplesIf is_windows()
-#' np <- named_pipe("test")
+#' @examples
+#' np <- winpipe("test")
 #' on.exit(close(np))
 #' 
 #' np_get_timeout(np)

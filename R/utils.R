@@ -18,6 +18,15 @@ is_number <- function(x) {
 }
 
 
+irenv <- new.env(parent = emptyenv())
+check_repeated_interrupt <- function() {
+  if (as.double(Sys.time()) - irenv$last_interrupt < 1) {
+    stop("Interrupting", call. = FALSE)
+  }
+  irenv$last_interrupt <- as.double(Sys.time())
+}
+
+
 tabular <- function(df, ...) {
   stopifnot(is.data.frame(df))
 

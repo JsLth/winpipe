@@ -2,9 +2,12 @@
 % Please edit documentation in R/impersonate.R
 \name{np_impersonate}
 \alias{np_impersonate}
+\alias{np_revert}
 \title{Impersonation}
 \usage{
 np_impersonate(con)
+
+np_revert()
 }
 \arguments{
 \item{con}{\code{[winpipe]}.
@@ -15,7 +18,13 @@ An open \code{winpipe} as created by \code{\link{winpipe}}.}
 Nothing.
 }
 \description{
-Impersonate a client (and revert).
+Impersonate a client (and revert). When impersonated,
+pipe actions can be executed from the client's perspective.
+
+Currently, there's no real use for these functions. You can
+retrieve the name of the client using \code{\link{np_state}}.
+
+After impersonating, make sure to always revert.
 }
 \examples{
 server <- winpipe("test")

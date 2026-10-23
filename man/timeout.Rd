@@ -27,12 +27,10 @@ timeout before setting.
 Get or set the I/O timeout of a pipe connection
 }
 \examples{
-\dontshow{if (is_windows()) withAutoprint(\{ # examplesIf}
-np <- named_pipe("test")
+np <- winpipe("test")
 on.exit(close(np))
 
 np_get_timeout(np)
 np_set_timeout(np, Inf)
 np_get_timeout(np)
-\dontshow{\}) # examplesIf}
 }

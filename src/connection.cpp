@@ -32,11 +32,12 @@ constexpr DWORD kPollMs = 100;  // how often waits check for R interrupts
 
 struct PipeState {
     HANDLE h = INVALID_HANDLE_VALUE;
-    HANDLE ev = NULL;  // completion event shared by all (sequential) operations
+    HANDLE ev = NULL;
     std::wstring name;
     std::wstring sddl;
     bool server = true;
-    DWORD timeout_ms = 60000;  // INFINITE disables the timeout
+    double max_instances = INFINITY;
+    DWORD timeout_ms = 60000;
     unsigned char buf[4096];
     size_t pos = 0, len = 0;
 };
@@ -96,7 +97,7 @@ std::string GetErrorMessage(DWORD err) {
     {
         std::string m = GetErrorMessage(err);
         if (what != nullptr) {
-            snprintf(buf, sizeof(buf), "[%.31s] %s", what, m.c_str());
+            snprintf(buf, sizeof(buf), "%.31s: %s", what, m.c_str());
         } else {
             snprintf(buf, sizeof(buf), "%s", m.c_str());
         }
@@ -173,7 +174,7 @@ std::string wstring_to_utf8(const std::wstring& input) {
 
 // ---- Overlapped I/O with timeout ---------------------
 
-// Empty: non-blocking read with nothing available yet (peer still connected).
+// non-blocking read with nothing available yet.
 enum class IoStatus { Ok, Eof, Timeout, Interrupted, Error, Empty };
 
 struct IoResult {
@@ -302,7 +303,7 @@ IoResult io_connect(PipeState* s) {
 // ---- Handle creation (non-throwing; callers raise the R error) -------------
 
 HANDLE create_server_handle(const std::wstring& name, const std::wstring& sddl,
-                            DWORD* err, const char** stage) {
+                            const double max_instances, DWORD* err, const char** stage) {
     SECURITY_ATTRIBUTES sa, *psa = NULL;
     PSECURITY_DESCRIPTOR sd = NULL;
 
@@ -319,10 +320,15 @@ HANDLE create_server_handle(const std::wstring& name, const std::wstring& sddl,
         psa = &sa;
     }
 
+    DWORD mi = PIPE_UNLIMITED_INSTANCES;
+    if (std::isfinite(max_instances) && max_instances >= 1 && max_instances <= 254) {
+        mi = static_cast<DWORD>(max_instances);
+    };
+
     HANDLE h = CreateNamedPipeW(
         name.c_str(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
         PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
-        PIPE_UNLIMITED_INSTANCES, 1 << 20, 1 << 20, 0, psa);
+        mi, 1 << 20, 1 << 20, 0, psa);
 
     if (h == INVALID_HANDLE_VALUE) {
         *err = GetLastError();
@@ -332,7 +338,12 @@ HANDLE create_server_handle(const std::wstring& name, const std::wstring& sddl,
     return h;
 }
 
-HANDLE open_client_handle(const std::wstring& name, DWORD timeout_ms, DWORD* err) {
+// When every instance is busy, wait for one to free up in short slices so that
+// R interrupts are honoured and the overall timeout is respected.
+HANDLE open_client_handle(const std::wstring& name, DWORD timeout_ms, DWORD* err,
+                          bool* was_interrupted) {
+    *was_interrupted = false;
+    const ULONGLONG start = GetTickCount64();
     for (;;) {
         HANDLE h = CreateFileW(name.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL,
                                OPEN_EXISTING,
@@ -341,9 +352,23 @@ HANDLE open_client_handle(const std::wstring& name, DWORD timeout_ms, DWORD* err
                                NULL);
         if (h != INVALID_HANDLE_VALUE) return h;
         *err = GetLastError();
-        if (*err != ERROR_PIPE_BUSY || timeout_ms == 0 ||
-            !WaitNamedPipeW(name.c_str(),
-                            timeout_ms == INFINITE ? NMPWAIT_WAIT_FOREVER : timeout_ms)) {
+        if (*err != ERROR_PIPE_BUSY || timeout_ms == 0) return INVALID_HANDLE_VALUE;
+
+        DWORD slice = kPollMs;
+        if (timeout_ms != INFINITE) {
+            ULONGLONG elapsed = GetTickCount64() - start;
+            if (elapsed >= timeout_ms) {
+                *err = ERROR_SEM_TIMEOUT;
+                return INVALID_HANDLE_VALUE;
+            }
+            slice = static_cast<DWORD>(std::min<ULONGLONG>(kPollMs, timeout_ms - elapsed));
+        }
+
+        // Returns FALSE on slice timeout; the loop then retries CreateFile
+        WaitNamedPipeW(name.c_str(), slice);
+
+        if (interrupted()) {
+            *was_interrupted = true;
             return INVALID_HANDLE_VALUE;
         }
     }
@@ -374,12 +399,12 @@ Rboolean np_con_open(Rconnection con) {
     if (!s->ev) win_error();
 
     if (s->server) {
-        s->h = create_server_handle(s->name, s->sddl, &err, &stage);
+        s->h = create_server_handle(s->name, s->sddl, s->max_instances, &err, &stage);
         if (s->h == INVALID_HANDLE_VALUE) {
             release_handles(s);
             win_error(err, stage);
         }
-        // Non-blocking opens return immediately; use np_listen() to accept.
+        // Non-blocking opens return immediately
         if (con->blocking) {
             IoResult r = io_connect(s);
             if (r.status != IoStatus::Ok) {
@@ -388,9 +413,16 @@ Rboolean np_con_open(Rconnection con) {
             }
         }
     } else {
-        s->h = open_client_handle(s->name, s->timeout_ms, &err);
+        bool was_interrupted = false;
+        // A non-blocking open must not wait for a free instance
+        DWORD wait_ms = con->blocking ? s->timeout_ms : 0;
+        s->h = open_client_handle(s->name, wait_ms, &err, &was_interrupted);
         if (s->h == INVALID_HANDLE_VALUE) {
             release_handles(s);
+            if (was_interrupted) r_errorf("Interrupted while waiting for a free pipe instance");
+            if (err == ERROR_SEM_TIMEOUT)
+                r_errorf("Timed out after %.1f s waiting for a free pipe instance",
+                         s->timeout_ms / 1000.0);
             win_error(err);
         }
     }
@@ -582,7 +614,7 @@ PipeState* checked_state(SEXP sxp) {
 
 [[cpp11::register]]
 SEXP cpp_np_connection(const std::string& name, const std::string& sddl,
-                       bool server, bool blocking, double timeout) {
+                       bool server, bool blocking, double max_instances, double timeout) {
     std::wstring wname = utf8_to_wstring(name);
     std::wstring wsddl = utf8_to_wstring(sddl);
 
@@ -593,6 +625,7 @@ SEXP cpp_np_connection(const std::string& name, const std::string& sddl,
     s->name = wname;
     s->sddl = wsddl;
     s->server = server;
+    s->max_instances = max_instances;
     s->timeout_ms = seconds_to_ms(timeout);
 
     con->private_ = s;
@@ -604,7 +637,6 @@ SEXP cpp_np_connection(const std::string& name, const std::string& sddl,
     con->write = np_con_write;
     con->fflush = np_con_flush;
     con->canseek = RB_FALSE;
-    // open() may override this before np_con_open runs
     con->blocking = blocking ? RB_TRUE : RB_FALSE;
 
     UNPROTECT(1);
@@ -688,7 +720,7 @@ cpp11::list cpp_np_conn_state(SEXP con) {
     DWORD current_instances = 0;
 
     if (!GetNamedPipeHandleStateW(h, &state, &current_instances, NULL, NULL, NULL, 0)) {
-        cpp11::stop("[GetNamedPipeHandleState] %s", GetErrorMessage(GetLastError()).c_str());
+        cpp11::stop(GetErrorMessage(GetLastError()).c_str());
     }
 
     DWORD flags = 0;
@@ -722,15 +754,20 @@ cpp11::list cpp_np_conn_state(SEXP con) {
 // Low-level info about the connection
 [[cpp11::register]]
 cpp11::list cpp_np_conn_peek(SEXP con) {
-    HANDLE h = checked_state(con)->h;
+    PipeState* s = checked_state(con);
+    HANDLE h = s->h;
 
-    DWORD available = NA_REAL;
-    DWORD messages_left = NA_REAL;
+    // Bytes already pulled from the kernel but not yet consumed by R
+    const double buffered = static_cast<double>(s->len - s->pos);
+
+    DWORD pipe_bytes = 0;
+    double available = NA_REAL;
     DWORD error_code = 0;
     bool connected = false;
 
-    if (PeekNamedPipe(h, NULL, 0, NULL, &available, &messages_left)) {
+    if (PeekNamedPipe(h, NULL, 0, NULL, &pipe_bytes, NULL)) {
         connected = true;
+        available = static_cast<double>(pipe_bytes) + buffered;
     } else {
         error_code = GetLastError();
 
@@ -741,8 +778,8 @@ cpp11::list cpp_np_conn_peek(SEXP con) {
             case ERROR_BROKEN_PIPE:
             case ERROR_NO_DATA:
             case ERROR_HANDLE_EOF:
-                available = NA_REAL;
-                messages_left = NA_REAL;
+                // Buffered bytes remain readable after the peer disconnects
+                if (buffered > 0) available = buffered;
                 break;
 
             default: {
@@ -755,12 +792,10 @@ cpp11::list cpp_np_conn_peek(SEXP con) {
     using namespace cpp11::literals;
 
     return cpp11::writable::list({
-        "connected"_nm = connected,
-        "available"_nm = static_cast<double>(available),
-        "messages_left"_nm = static_cast<double>(messages_left),
-        "error_code"_nm = connected
-            ? NA_REAL
-            : static_cast<double>(error_code)
+        "available"_nm = available,
+        "error_code"_nm = (connected || buffered > 0)
+            ? cpp11::r_string(NA_STRING)
+            : cpp11::r_string(GetErrorMessage(error_code).c_str())
     });
 }
 

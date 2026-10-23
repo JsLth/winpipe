@@ -6,10 +6,10 @@
 #include <R_ext/Visibility.h>
 
 // connection.cpp
-SEXP cpp_np_connection(const std::string& name, const std::string& sddl, bool server, bool blocking, double timeout);
-extern "C" SEXP _winpipe_cpp_np_connection(SEXP name, SEXP sddl, SEXP server, SEXP blocking, SEXP timeout) {
+SEXP cpp_np_connection(const std::string& name, const std::string& sddl, bool server, bool blocking, double max_instances, double timeout);
+extern "C" SEXP _winpipe_cpp_np_connection(SEXP name, SEXP sddl, SEXP server, SEXP blocking, SEXP max_instances, SEXP timeout) {
   BEGIN_CPP11
-    return cpp11::as_sexp(cpp_np_connection(cpp11::as_cpp<cpp11::decay_t<const std::string&>>(name), cpp11::as_cpp<cpp11::decay_t<const std::string&>>(sddl), cpp11::as_cpp<cpp11::decay_t<bool>>(server), cpp11::as_cpp<cpp11::decay_t<bool>>(blocking), cpp11::as_cpp<cpp11::decay_t<double>>(timeout)));
+    return cpp11::as_sexp(cpp_np_connection(cpp11::as_cpp<cpp11::decay_t<const std::string&>>(name), cpp11::as_cpp<cpp11::decay_t<const std::string&>>(sddl), cpp11::as_cpp<cpp11::decay_t<bool>>(server), cpp11::as_cpp<cpp11::decay_t<bool>>(blocking), cpp11::as_cpp<cpp11::decay_t<double>>(max_instances), cpp11::as_cpp<cpp11::decay_t<double>>(timeout)));
   END_CPP11
 }
 // connection.cpp
@@ -126,7 +126,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_winpipe_cpp_np_conn_peek",        (DL_FUNC) &_winpipe_cpp_np_conn_peek,        1},
     {"_winpipe_cpp_np_conn_state",       (DL_FUNC) &_winpipe_cpp_np_conn_state,       1},
     {"_winpipe_cpp_np_conn_timeout",     (DL_FUNC) &_winpipe_cpp_np_conn_timeout,     3},
-    {"_winpipe_cpp_np_connection",       (DL_FUNC) &_winpipe_cpp_np_connection,       5},
+    {"_winpipe_cpp_np_connection",       (DL_FUNC) &_winpipe_cpp_np_connection,       6},
     {"_winpipe_cpp_np_list",             (DL_FUNC) &_winpipe_cpp_np_list,             0},
     {"_winpipe_cpp_np_revert",           (DL_FUNC) &_winpipe_cpp_np_revert,           0},
     {"_winpipe_cpp_np_token_info",       (DL_FUNC) &_winpipe_cpp_np_token_info,       2},

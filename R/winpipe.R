@@ -59,6 +59,17 @@
 #' 
 #' When \code{server = FALSE}, the named pipe cannot be created or destroyed.
 #' Clients can only read or write but not change the state of the named pipe.
+#' If a client named pipe is opened but there is no server instance available
+#' to answer it, it will block the session until its timeout is reached or
+#' an interrupt is signaled.
+#' 
+#' @section Blocking:
+#' 
+#' The principles of blocking are explained in \code{\link[base]{pipe()}}.
+#' Since \code{readLines()} with \code{n = -1} reads until the end of the
+#' input, reading all lines from a server blocks the session until the
+#' client signals the end of the input by closing the connection. 
+#' 
 #' 
 #' @export
 #' 
@@ -83,9 +94,15 @@ winpipe <- function(name,
                     server = !np_exists(name),
                     blocking = FALSE,
                     sddl = sd_default(),
+                    max_instances = Inf,
                     timeout = getOption("timeout")) {
   if (!is_string(name)) {
     stop("`name` must be a single string.")
+  }
+
+  if (!is_number(max_instances) ||
+      !(is.infinite(max_instances) || (max_instances >= 1 && max_instances <= 254))) {
+    stop("`max_instances` must be `Inf` or a single number between 1 and 254.")
   }
 
   if (!is_number(timeout)) {
@@ -107,6 +124,7 @@ winpipe <- function(name,
     sddl,
     isTRUE(server),
     isTRUE(blocking),
+    as.double(round(max_instances, 0)),
     as.double(timeout)
   )
 
