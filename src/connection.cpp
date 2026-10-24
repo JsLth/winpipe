@@ -1024,3 +1024,15 @@ void cpp_np_revert() {
         cpp11::stop(GetErrorMessage(GetLastError()).c_str());
     }
 }
+
+// Defined in dacl.cpp.
+std::string sddl_from_handle(HANDLE h, DWORD info);
+
+// Security descriptor (owner, group, DACL, integrity label) of the pipe
+// instance behind an open connection, as an SDDL string.
+[[cpp11::register]]
+std::string cpp_np_conn_sddl(SEXP con) {
+    return sddl_from_handle(checked_state(con)->h,
+                            OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
+                            DACL_SECURITY_INFORMATION | 0x00000010L);
+}

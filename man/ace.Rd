@@ -48,13 +48,13 @@ The following codes and descriptions can be used interchangeably for ACE compone
 \strong{\code{type}:}
 \tabular{ll}{
 \strong{Code} \tab \strong{Description} \cr
-A  \tab allow                         \cr
-D  \tab denied                        \cr
-OA \tab object-specific access allowed\cr
-OD \tab object-specific access denied \cr
-AU \tab system audit                  \cr
-AL \tab system alarm                  \cr
-OU \tab object-specific system audit  \cr
+A  \tab allow                       \cr
+D  \tab deny                        \cr
+OA \tab object-specific access allow\cr
+OD \tab object-specific access deny \cr
+AU \tab system audit                \cr
+AL \tab system alarm                \cr
+OU \tab object-specific system audit\cr
 ML \tab mandatory label
 }
 

@@ -144,9 +144,9 @@ resolve_account <- function(x) {
 
 ace_types <- list(
   A = "allow",
-  D = "denied",
-  OA = "object-specific access allowed",
-  OD = "object-specific access denied",
+  D = "deny",
+  OA = "object-specific access allow",
+  OD = "object-specific access deny",
   AU = "system audit",
   AL = "system alarm",
   OU = "object-specific system audit",

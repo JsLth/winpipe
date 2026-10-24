@@ -70,7 +70,7 @@ A parsed descriptor is a list with elements \code{owner}, \code{group},
 \preformatted{O:BAG:WDD:(A;IO;GRGW;;;SY)}
 
 The prefix specifies the owner, primary group and DACL. Wrapped inside brackets
-are the individual \code{\link{ace()}}s, which specify the DACL configurations.
+are the individual \code{\link{ace}}s, which specify the DACL configurations.
 Multiple ACEs can follow each other.
 
 Each ACE is a list with \code{type}, \code{flags}, \code{rights}, \code{object_guid},

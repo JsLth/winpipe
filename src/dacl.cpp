@@ -191,6 +191,75 @@ std::string acl_string(SEXP acl, const char* name) {
 
 }  // namespace
 
+#ifndef LABEL_SECURITY_INFORMATION
+#define LABEL_SECURITY_INFORMATION 0x00000010L
+#endif
+
+// SDDL string for a kernel object handle, limited to the sections in `info`
+// (OWNER/GROUP/DACL/LABEL/SACL_SECURITY_INFORMATION). The handle needs
+// READ_CONTROL, plus ACCESS_SYSTEM_SECURITY if the SACL is requested.
+std::string sddl_from_handle(HANDLE h, DWORD info) {
+    DWORD len = 0;
+    GetKernelObjectSecurity(h, info, NULL, 0, &len);
+    if (len == 0 || GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+        cpp11::stop(error_message(GetLastError()).c_str());
+
+    std::vector<BYTE> buf(len);
+    if (!GetKernelObjectSecurity(h, info, buf.data(), len, &len))
+        cpp11::stop(error_message(GetLastError()).c_str());
+
+    LPWSTR wstr = NULL;
+    if (!ConvertSecurityDescriptorToStringSecurityDescriptorW(
+            buf.data(), SDDL_REVISION_1, info, &wstr, NULL))
+        cpp11::stop(error_message(GetLastError()).c_str());
+
+    std::string out = to_utf8(wstr);
+    LocalFree(wstr);
+    return out;
+}
+
+// Security descriptor of an existing named pipe, looked up by full name
+// (e.g. \\.\pipe\foo), as an SDDL string. Works for pipes not created by R.
+// Reading it requires opening the pipe, which makes this a client connection
+// that is closed straight away. A server waiting in ConnectNamedPipe() will
+// see it, and a pipe whose instances are all busy can fail with PIPE_BUSY.
+// `sacl = TRUE` also reads audit entries and needs SeSecurityPrivilege;
+// integrity labels are always included.
+[[cpp11::register]]
+std::string cpp_np_sddl(const std::string& name, bool sacl) {
+    std::wstring wname = to_wide(name);
+    DWORD info = OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
+                 DACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION;
+    DWORD access = READ_CONTROL;
+    if (sacl) {
+        info |= SACL_SECURITY_INFORMATION;
+        access |= ACCESS_SYSTEM_SECURITY;
+    }
+
+    HANDLE h = CreateFileW(wname.c_str(), access,
+                           FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                           OPEN_EXISTING, 0, NULL);
+    if (h == INVALID_HANDLE_VALUE && GetLastError() == ERROR_PIPE_BUSY &&
+        WaitNamedPipeW(wname.c_str(), 1000)) {
+        h = CreateFileW(wname.c_str(), access,
+                        FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                        OPEN_EXISTING, 0, NULL);
+    }
+    if (h == INVALID_HANDLE_VALUE) {
+        std::string msg = error_message(GetLastError());
+        cpp11::stop("Cannot open pipe '%s': %s", name.c_str(), msg.c_str());
+    }
+
+    std::string out;
+    try {
+        out = sddl_from_handle(h, info);
+    } catch (...) {
+        CloseHandle(h);
+        throw;
+    }
+    CloseHandle(h);
+    return out;
+}
 
 // Default DACL of the current token (thread token if impersonating, else
 // process token), as an SDDL string. This is what CreateNamedPipeW applies

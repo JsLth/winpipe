@@ -100,7 +100,19 @@ already written stays readable by the client.
 
 When \code{server = FALSE}, the named pipe cannot be created or destroyed.
 Clients can only read or write but not change the state of the named pipe.
+If a client named pipe is opened but there is no server instance available
+to answer it, it will block the session until its timeout is reached or
+an interrupt is signaled.
 }
+\section{Blocking}{
+
+
+The principles of blocking are explained in \code{\link[base]{pipe()}}.
+Since \code{readLines()} with \code{n = -1} reads until the end of the
+input, reading all lines from a server blocks the session until the
+client signals the end of the input by closing the connection.
+}
+
 \examples{
 server <- winpipe("test")
 client <- winpipe("test", server = FALSE)

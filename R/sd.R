@@ -43,7 +43,7 @@
 #' \preformatted{O:BAG:WDD:(A;IO;GRGW;;;SY)}
 #' 
 #' The prefix specifies the owner, primary group and DACL. Wrapped inside brackets
-#' are the individual \code{\link{ace()}}s, which specify the DACL configurations.
+#' are the individual \code{\link{ace}}s, which specify the DACL configurations.
 #' Multiple ACEs can follow each other.
 #' 
 #' Each ACE is a list with \code{type}, \code{flags}, \code{rights}, \code{object_guid},
@@ -148,12 +148,14 @@ format.winpipe_sd <- function(x, ...) {
 
 #' @export
 print.winpipe_sd <- function(x, ...) {
-  cat("<winpipe_sd> ", sd_build(x), "\n", sep = "")
+  cat("<winpipe_sd>\n", sd_build(x), "\n", sep = "")
   invisible(x)
 }
 
 
 new_sd <- function(owner, group, dacl, sacl) {
+  if (length(dacl)) dacl$aces <- lapply(dacl$aces, structure, class = "winpipe_ace")
+  if (length(sacl)) sacl$aces <- lapply(sacl$aces, structure, class = "winpipe_ace")
   structure(
     list(owner = owner, group = group, dacl = dacl, sacl = sacl),
     class = "winpipe_sd"

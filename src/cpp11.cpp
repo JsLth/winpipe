@@ -93,6 +93,20 @@ extern "C" SEXP _winpipe_cpp_np_revert() {
     return R_NilValue;
   END_CPP11
 }
+// connection.cpp
+std::string cpp_np_conn_sddl(SEXP con);
+extern "C" SEXP _winpipe_cpp_np_conn_sddl(SEXP con) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(cpp_np_conn_sddl(cpp11::as_cpp<cpp11::decay_t<SEXP>>(con)));
+  END_CPP11
+}
+// dacl.cpp
+std::string cpp_np_sddl(const std::string& name, bool sacl);
+extern "C" SEXP _winpipe_cpp_np_sddl(SEXP name, SEXP sacl) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(cpp_np_sddl(cpp11::as_cpp<cpp11::decay_t<const std::string&>>(name), cpp11::as_cpp<cpp11::decay_t<bool>>(sacl)));
+  END_CPP11
+}
 // dacl.cpp
 std::string cpp_default_dacl();
 extern "C" SEXP _winpipe_cpp_default_dacl() {
@@ -124,11 +138,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_winpipe_cpp_np_conn_impersonate", (DL_FUNC) &_winpipe_cpp_np_conn_impersonate, 1},
     {"_winpipe_cpp_np_conn_info",        (DL_FUNC) &_winpipe_cpp_np_conn_info,        1},
     {"_winpipe_cpp_np_conn_peek",        (DL_FUNC) &_winpipe_cpp_np_conn_peek,        1},
+    {"_winpipe_cpp_np_conn_sddl",        (DL_FUNC) &_winpipe_cpp_np_conn_sddl,        1},
     {"_winpipe_cpp_np_conn_state",       (DL_FUNC) &_winpipe_cpp_np_conn_state,       1},
     {"_winpipe_cpp_np_conn_timeout",     (DL_FUNC) &_winpipe_cpp_np_conn_timeout,     3},
     {"_winpipe_cpp_np_connection",       (DL_FUNC) &_winpipe_cpp_np_connection,       6},
     {"_winpipe_cpp_np_list",             (DL_FUNC) &_winpipe_cpp_np_list,             0},
     {"_winpipe_cpp_np_revert",           (DL_FUNC) &_winpipe_cpp_np_revert,           0},
+    {"_winpipe_cpp_np_sddl",             (DL_FUNC) &_winpipe_cpp_np_sddl,             2},
     {"_winpipe_cpp_np_token_info",       (DL_FUNC) &_winpipe_cpp_np_token_info,       2},
     {"_winpipe_cpp_sd_build",            (DL_FUNC) &_winpipe_cpp_sd_build,            1},
     {"_winpipe_cpp_sd_parse",            (DL_FUNC) &_winpipe_cpp_sd_parse,            1},

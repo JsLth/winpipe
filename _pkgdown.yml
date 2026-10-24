@@ -1,0 +1,26 @@
+url: https://jslth.github.io/winpipe/
+pkwurl: ~
+template:
+  bootstrap: 5
+  bootswatch: litera
+  math-rendering: mathjax
+  bslib:
+    base_font: {google: "Roboto"}
+    heading_font: {google: "Roboto Slab"}
+    code_font: {google: "JetBrains Mono"}
+    link-color: "#0054AD"
+
+navbar:
+  title: "winpipe"
+  left:
+    - text: Overview
+      icon: fa-home
+      href: index.html
+    - text: Vignettes
+      icon: fa-book
+      menu:
+        - text: "HTTP over named pipes"
+          href: articles/http.html
+    - text: Reference
+      icon: fa-search
+      href: reference/index.html

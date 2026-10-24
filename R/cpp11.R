@@ -48,6 +48,14 @@ cpp_np_revert <- function() {
   invisible(.Call(`_winpipe_cpp_np_revert`))
 }
 
+cpp_np_conn_sddl <- function(con) {
+  .Call(`_winpipe_cpp_np_conn_sddl`, con)
+}
+
+cpp_np_sddl <- function(name, sacl) {
+  .Call(`_winpipe_cpp_np_sddl`, name, sacl)
+}
+
 cpp_default_dacl <- function() {
   .Call(`_winpipe_cpp_default_dacl`)
 }

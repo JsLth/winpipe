@@ -18,12 +18,15 @@ is_number <- function(x) {
 }
 
 
-irenv <- new.env(parent = emptyenv())
-check_repeated_interrupt <- function() {
-  if (as.double(Sys.time()) - irenv$last_interrupt < 1) {
-    stop("Interrupting", call. = FALSE)
+check_installed <- function(x) {
+  if (!is_installed(x)) {
+    stop(sprintf("Package `%s` required. Install it with `install.packages(\"%s\")`.", x, x))
   }
-  irenv$last_interrupt <- as.double(Sys.time())
+}
+
+
+is_installed <- function(x) {
+  suppressMessages(suppressWarnings(requireNamespace(x, quietly = TRUE)))
 }
 
 

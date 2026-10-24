@@ -4,6 +4,7 @@
 \alias{np_config}
 \alias{np_state}
 \alias{np_peek}
+\alias{np_sd}
 \title{Low-level information about a named pipe}
 \usage{
 np_config(con)
@@ -11,6 +12,8 @@ np_config(con)
 np_state(con)
 
 np_peek(con)
+
+np_sd(con)
 }
 \arguments{
 \item{con}{\code{[winpipe]}.
@@ -18,7 +21,7 @@ np_peek(con)
 An open \code{winpipe} as created by \code{\link{winpipe}}.}
 }
 \value{
-\code{np_config()} returns the following fields:
+\code{np_config()} returns:
 
 \itemize{
 \item{\code{is_server} and \code{is_client}}: Whether the pipe is started as a server or client.
@@ -36,6 +39,8 @@ An open \code{winpipe} as created by \code{\link{winpipe}}.}
 }
 
 \code{np_peek()} returns the number of bytes available to read from the pipe. If \code{np_peek()} cannot read from the pipe, returns the error code as a warning.
+
+\code{np_sd()} returns an object of class \code{\link[=security_descriptor]{winpipe_sd}}.
 }
 \description{
 Functions to retrieve low-level information about a named pipe.
@@ -44,6 +49,7 @@ Functions to retrieve low-level information about a named pipe.
 \item{\code{np_config()} returns the pipe configuration.}
 \item{\code{np_state()} returns the current clients.}
 \item{\code{np_peek()} looks at the bytes of a pipe without reading.}
+\item{\code{np_sd()} returns the \link[=security_descriptor]{security descriptor}.}
 }
 }
 \examples{

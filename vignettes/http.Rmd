@@ -1,0 +1,41 @@
+---
+title: "HTTP over named pipes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{HTTP over named pipes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(winpipe)
+np_exists("docker_engine")
+```
+
+```{r docker-check include=FALSE}
+stopifnot(np_exists("docker_engine"))
+```
+
+
+```{r connect}
+proxy <- np_proxy("docker_engine")
+```
+
+
+```{r request}
+req <- "GET /version HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
+writeBin(charToRaw(req), con)
+```
+
+
+```{r response}
+res <- readBin(con, "raw", 65536)
+resp <- httr2::response(url = "docker_engine", body = res)
+```

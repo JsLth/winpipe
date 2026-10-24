@@ -7,13 +7,14 @@
 #'  \item{\code{np_config()} returns the pipe configuration.}
 #'  \item{\code{np_state()} returns the current clients.}
 #'  \item{\code{np_peek()} looks at the bytes of a pipe without reading.}
+#'  \item{\code{np_sd()} returns the \link[=security_descriptor]{security descriptor}.}
 #' }
 #' 
 #' @param con \code{[winpipe]}.
 #' 
 #' An open \code{winpipe} as created by \code{\link{winpipe}}.
 #' 
-#' @returns \code{np_config()} returns the following fields:
+#' @returns \code{np_config()} returns:
 #' 
 #' \itemize{
 #'  \item{\code{is_server} and \code{is_client}}: Whether the pipe is started as a server or client.
@@ -31,6 +32,8 @@
 #' }
 #' 
 #' \code{np_peek()} returns the number of bytes available to read from the pipe. If \code{np_peek()} cannot read from the pipe, returns the error code as a warning.
+#' 
+#' \code{np_sd()} returns an object of class \code{\link[=security_descriptor]{winpipe_sd}}.
 #' @export
 #' @rdname info
 #' 
@@ -85,4 +88,12 @@ np_peek <- function(con) {
 
   out <- out$available
   out
+}
+
+
+#' @rdname info
+#' @export
+np_sd <- function(con) {
+  check_winpipe(con)
+  sd_parse(cpp_np_conn_sddl(con))
 }
