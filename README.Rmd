@@ -13,9 +13,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-# winpipe
+# winpipe <img align="right" height="150" src="man/figures/logo.png">
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/jslth/winpipe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jslth/winpipe/actions/workflows/R-CMD-check.yaml)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/winpipe)](https://CRAN.R-project.org/package=winpipe)
+[![Project Status: Active – The project has reached a stable, usable
+state and is being actively
+developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 <!-- badges: end -->
 
 `{winpipe}` exposes Win32 Named Pipes as R connections to read from and write to. Named Pipes are a device for inter-process communication (IPC) that are part of the file system and allow for fine-grained access control. R has native support for FIFOs on Unix-like systems but does not expose any API for named pipes on Windows.
@@ -84,7 +90,7 @@ pipe <- winpipe("sd-pipe", sddl = sd)
 np_sd(pipe)
 ```
 
-```{r dacl-close}
+```{r dacl-close, echo=FALSE}
 close(server)
 close(client)
 close(pipe)

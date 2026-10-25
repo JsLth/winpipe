@@ -1,10 +1,16 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# winpipe
+# winpipe <img align="right" height="150" src="man/figures/logo.png">
 
 <!-- badges: start -->
 
+[![R-CMD-check](https://github.com/jslth/winpipe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jslth/winpipe/actions/workflows/R-CMD-check.yaml)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/winpipe)](https://CRAN.R-project.org/package=winpipe)
+[![Project Status: Active – The project has reached a stable, usable
+state and is being actively
+developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 <!-- badges: end -->
 
 `{winpipe}` exposes Win32 Named Pipes as R connections to read from and
@@ -106,12 +112,6 @@ pipe <- winpipe("sd-pipe", sddl = sd)
 np_sd(pipe)
 #> <winpipe_sd>
 #> O:S-1-5-21-1492369709-893483088-3947136618-1001G:S-1-5-21-1492369709-893483088-3947136618-1001D:(D;;FA;;;WD)(A;;FA;;;BA)(A;;FA;;;SY)
-```
-
-``` r
-close(server)
-close(client)
-close(pipe)
 ```
 
 ## Related work
