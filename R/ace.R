@@ -1,7 +1,7 @@
 #' Create an access control entry
 #'
 #' @description
-#' Builds a single ACE for use with \code{\link{sd_add()}}. Types, flags, rights and
+#' Builds a single ACE for use with [sd_add()]. Types, flags, rights and
 #' well-known accounts can be given either as their SDDL abbreviation (e.g.
 #' `"GA"`) or by description (e.g. `"generic all"`). See details for lookup tables.
 #'

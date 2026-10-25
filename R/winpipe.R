@@ -35,14 +35,26 @@
 #' @param sddl \code{[winpipe_sd]} or \code{[character(1)]}
 #' 
 #' Security descriptor string, or a security descriptor built with
-#'   \code{\link{sd_new}}. Ignored if \code{server} is \code{FALSE}.
+#'   \code{\link{sd_create}}. Ignored if \code{server} is \code{FALSE}.
 #'   Defaults to the default DACL of the current token (\code{\link{sd_default}}).
+#' @param max_instances \code{[numeric(1)]}
+#' 
+#' Maximum allowed instances that can be opened on a named pipe. Can be a number
+#'   between 1 and 254. If \code{Inf}, a maximum of 255 instances is allowed.
+#'   `max_instances` is set on the creation of the pipe. This means that all
+#'   connections connecting to an existing pipe cannot change the maximum number
+#'   of instances. Defaults to \code{Inf}.
 #' @param timeout \code{[numeric(1)]}
 #' 
 #' Seconds without progress before a read, write, accept, or open fails with
 #'   an error. If \code{Inf}, waits forever. Defaults to \code{getOption("timeout")}.
 #'   A read that times out after receiving bytes returns them with a warning instead of
 #'   discarding them.
+#' @param con \code{[winpipe]}
+#' 
+#' A \code{winpipe} connection created by \code{winpipe}.
+#' @param ... Further arguments passed to \code{\link[base]{open}}.
+#' @param x Any object.
 #' @returns \code{named_pipe} returns a connection of class \code{"named_pipe"}.
 #' All methods accepting a connection work on named pipes. Use \code{open = "r+b"} for
 #' \code{\link{readBin}} and \code{\link{writeBin}}.
@@ -65,7 +77,7 @@
 #' 
 #' @section Blocking:
 #' 
-#' The principles of blocking are explained in \code{\link[base]{pipe()}}.
+#' The principles of blocking are explained in \code{\link[base]{pipe}}.
 #' Since \code{readLines()} with \code{n = -1} reads until the end of the
 #' input, reading all lines from a server blocks the session until the
 #' client signals the end of the input by closing the connection. 

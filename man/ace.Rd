@@ -38,7 +38,7 @@ An alias, description or SID of a trusted account.}
 A list of class \code{"winpipe_ace"}.
 }
 \description{
-Builds a single ACE for use with \code{\link{sd_add()}}. Types, flags, rights and
+Builds a single ACE for use with \code{\link[=sd_add]{sd_add()}}. Types, flags, rights and
 well-known accounts can be given either as their SDDL abbreviation (e.g.
 \code{"GA"}) or by description (e.g. \code{"generic all"}). See details for lookup tables.
 }

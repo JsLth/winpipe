@@ -20,6 +20,8 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
+    pkgload,
+    jsonlite,
     callr,
     httpuv,
     httr2

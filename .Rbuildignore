@@ -5,3 +5,7 @@
 ^docs$
 ^pkgdown$
 ^README\.Rmd$
+\.png$
+\.drawio$
+^.github$
+^cran-comments\.md$
