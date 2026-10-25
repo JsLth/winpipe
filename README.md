@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/jslth/winpipe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jslth/winpipe/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/jslth/winpipe/graph/badge.svg)](https://app.codecov.io/gh/jslth/winpipe)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/winpipe)](https://CRAN.R-project.org/package=winpipe)
 [![Project Status: Active – The project has reached a stable, usable
