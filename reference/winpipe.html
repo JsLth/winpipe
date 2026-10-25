@@ -131,8 +131,17 @@ Writes always block. Defaults to <code>FALSE</code>.</p></dd>
 <dt id="arg-sddl">sddl<a class="anchor" aria-label="anchor" href="#arg-sddl"></a></dt>
 <dd><p><code>[winpipe_sd]</code> or <code>[character(1)]</code></p>
 <p>Security descriptor string, or a security descriptor built with
-<code>sd_new</code>. Ignored if <code>server</code> is <code>FALSE</code>.
+<code><a href="security_descriptor.html">sd_create</a></code>. Ignored if <code>server</code> is <code>FALSE</code>.
 Defaults to the default DACL of the current token (<code><a href="security_descriptor.html">sd_default</a></code>).</p></dd>
+
+
+<dt id="arg-max-instances">max_instances<a class="anchor" aria-label="anchor" href="#arg-max-instances"></a></dt>
+<dd><p><code>[numeric(1)]</code></p>
+<p>Maximum allowed instances that can be opened on a named pipe. Can be a number
+between 1 and 254. If <code>Inf</code>, a maximum of 255 instances is allowed.
+<code>max_instances</code> is set on the creation of the pipe. This means that all
+connections connecting to an existing pipe cannot change the maximum number
+of instances. Defaults to <code>Inf</code>.</p></dd>
 
 
 <dt id="arg-timeout">timeout<a class="anchor" aria-label="anchor" href="#arg-timeout"></a></dt>
@@ -141,6 +150,19 @@ Defaults to the default DACL of the current token (<code><a href="security_descr
 an error. If <code>Inf</code>, waits forever. Defaults to <code>getOption("timeout")</code>.
 A read that times out after receiving bytes returns them with a warning instead of
 discarding them.</p></dd>
+
+
+<dt id="arg-con">con<a class="anchor" aria-label="anchor" href="#arg-con"></a></dt>
+<dd><p><code>[winpipe]</code></p>
+<p>A <code>winpipe</code> connection created by <code>winpipe</code>.</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Further arguments passed to <code><a href="https://rdrr.io/r/base/connections.html" class="external-link">open</a></code>.</p></dd>
+
+
+<dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p>Any object.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -170,7 +192,7 @@ an interrupt is signaled.</p>
 
 
 
-<p>The principles of blocking are explained in <code><a href="https://rdrr.io/r/base/connections.html" class="external-link">pipe()</a></code>.
+<p>The principles of blocking are explained in <code><a href="https://rdrr.io/r/base/connections.html" class="external-link">pipe</a></code>.
 Since <code><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines()</a></code> with <code>n = -1</code> reads until the end of the
 input, reading all lines from a server blocks the session until the
 client signals the end of the input by closing the connection.</p>

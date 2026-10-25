@@ -82,9 +82,20 @@ np_list()
   `[winpipe_sd]` or `[character(1)]`
 
   Security descriptor string, or a security descriptor built with
-  `sd_new`. Ignored if `server` is `FALSE`. Defaults to the default DACL
-  of the current token
+  [`sd_create`](https://jslth.github.io/winpipe/reference/security_descriptor.md).
+  Ignored if `server` is `FALSE`. Defaults to the default DACL of the
+  current token
   ([`sd_default`](https://jslth.github.io/winpipe/reference/security_descriptor.md)).
+
+- max_instances:
+
+  `[numeric(1)]`
+
+  Maximum allowed instances that can be opened on a named pipe. Can be a
+  number between 1 and 254. If `Inf`, a maximum of 255 instances is
+  allowed. `max_instances` is set on the creation of the pipe. This
+  means that all connections connecting to an existing pipe cannot
+  change the maximum number of instances. Defaults to `Inf`.
 
 - timeout:
 
@@ -94,6 +105,21 @@ np_list()
   with an error. If `Inf`, waits forever. Defaults to
   `getOption("timeout")`. A read that times out after receiving bytes
   returns them with a warning instead of discarding them.
+
+- con:
+
+  `[winpipe]`
+
+  A `winpipe` connection created by `winpipe`.
+
+- ...:
+
+  Further arguments passed to
+  [`open`](https://rdrr.io/r/base/connections.html).
+
+- x:
+
+  Any object.
 
 ## Value
 
@@ -124,7 +150,7 @@ reached or an interrupt is signaled.
 ## Blocking
 
 The principles of blocking are explained in
-[`pipe()`](https://rdrr.io/r/base/connections.html). Since
+[`pipe`](https://rdrr.io/r/base/connections.html). Since
 [`readLines()`](https://rdrr.io/r/base/readLines.html) with `n = -1`
 reads until the end of the input, reading all lines from a server blocks
 the session until the client signals the end of the input by closing the
