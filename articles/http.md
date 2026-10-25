@@ -1,0 +1,139 @@
+# HTTP over named pipes
+
+``` r
+
+library(winpipe)
+```
+
+Sometimes, named pipes communicate over HTTP requests. One example for
+this is docker, which exposes paths like `/version` over named pipes on
+Windows. These requests work like any other pipe and, technically, can
+be communicated with like so:
+
+``` r
+
+# check if docker is running
+# start docker desktop if not
+np_exists("docker_engine")
+#> [1] TRUE
+
+# Connect to docker
+pipe <- winpipe("docker_engine", open = "r+b", server = FALSE)
+
+# Manually craft a request
+req <- paste(
+  "GET /version HTTP/1.1",
+  "Host: localhost",
+  "Connection: close",
+  "\r\n",
+  sep = "\r\n"
+)
+
+# Send the request
+writeBin(charToRaw(req), pipe)
+
+# Read the response
+res <- tryCatch(readBin(pipe, "raw", 65536))
+
+close(pipe)
+cat(rawToChar(res))
+```
+
+And while this is technically a solution, you have to take care of
+proper HTTP handling yourself, that is, making requests, parsing
+responses and all the nitty gritty in between. R already has ways to
+handle HTTP with packages such as
+[curl](https://jeroen.r-universe.dev/curl),
+[crul](https://docs.ropensci.org/crul/) or
+[httr2](https://httr2.r-lib.org).
+
+[`np_proxy()`](https://jslth.github.io/winpipe/reference/proxy.md) is a
+little helper than creates a relay socket server between server and
+client. It can thus communicate with a named pipe but can take HTTP
+requests like a normal socket server. There are two downsides:
+
+- Socket servers are not protected by Windows security
+- Proxies block the session and have to be run in a background process
+
+To start a proxy, simply provide the name of a named pipe:
+
+``` r
+
+proxy <- np_proxy("docker_engine")
+proxy
+#> <winpipe_proxy>
+#>   winpipe:   \\.\pipe\docker_engine 
+#>   base url:  http://127.0.0.1:29184/ 
+#>   listening: yes
+```
+
+The base URL shown in the console is the server you can connect to. The
+“listening” simply means that the background server hasn’t died yet. You
+can now send requests through curl, like so:
+
+``` r
+
+library(httr2)
+
+resp <- request(proxy$base_url) %>%
+  req_url_path("/version") %>%
+  req_perform() %>%
+  resp_body_json()
+resp$Platform
+#> $Name
+#> [1] "Docker Desktop 4.46.0 (204649)"
+```
+
+POST and DELETE requests work, too. For example, to download or delete
+an image:
+
+``` r
+
+pull <- request(proxy$base_url) %>%
+  req_url_path("/images/create") %>%
+  req_url_query(fromImage = "hello-world", tag = "latest") %>%
+  req_method("POST") %>%
+  req_perform() %>%
+  resp_body_string()
+cat(pull)
+#> {"status":"Pulling from library/hello-world","id":"latest"}
+#> {"status":"Pulling fs layer","progressDetail":{},"id":"4f55086f7dd0"}
+#> {"status":"Downloading","progressDetail":{"current":2415,"total":2415},"progress":"[==================================================\u003e]  2.415kB/2.415kB","id":"4f55086f7dd0"}
+#> {"status":"Download complete","progressDetail":{},"id":"4f55086f7dd0"}
+#> {"status":"Extracting","progressDetail":{"current":2415,"total":2415},"progress":"[==================================================\u003e]  2.415kB/2.415kB","id":"4f55086f7dd0"}
+#> {"status":"Extracting","progressDetail":{"current":2415,"total":2415},"progress":"[==================================================\u003e]  2.415kB/2.415kB","id":"4f55086f7dd0"}
+#> {"status":"Pull complete","progressDetail":{},"id":"4f55086f7dd0"}
+#> {"status":"Digest: sha256:11a3eb1597e864c51b3f56733cb2e8a90bf0c284bfc05f9444d81c558bc848aa"}
+#> {"status":"Status: Downloaded newer image for hello-world:latest"}
+```
+
+``` r
+
+img <- request(proxy$base_url) %>%
+  req_url_path("/images/json") %>%
+  req_perform() %>%
+  resp_body_json(simplifyVector = TRUE)
+id <- img$Id
+
+del <- request(proxy$base_url) %>%
+  req_url_path("/images", id) %>%
+  req_method("DELETE") %>%
+  req_perform()
+del$status_code
+#> [1] 200
+```
+
+Since proxies are background R processes, you have to handle them like
+one. To close a named pipe, kill the process.
+
+``` r
+
+proxy$proc
+#> PROCESS 'Rterm', running, pid 25692.
+```
+
+``` r
+
+proxy$proc$kill()
+#> [1] TRUE
+```
