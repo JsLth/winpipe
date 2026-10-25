@@ -19,7 +19,11 @@
 #' @param port \code{[numeric(1)]}
 #' 
 #' TCP port that the relay server should listen on.
+#' @param relay \code{[function]}
 #' 
+#' A relay function that takes a named pipe name and a port and forwards
+#' requests and responses between a server and a client. Defaults to
+#' \code{np_relay}.
 #' @returns \code{np_proxy()} returns an object of class \code{winpipe_proxy}.
 #' This object contains the base URL that accepts requests and a
 #' \code{\link[processx]{process}} object that manages the server child process.
@@ -64,19 +68,19 @@
 #' created$status_code
 #' }
 #' }
-np_proxy <- function(name, port = httpuv::randomPort()) {
-  check_installed("callr")
+np_proxy <- function(name, port = httpuv::randomPort(), relay = np_relay) {
+  check_installed("callr", "run a proxy in the background")
 
   if (!is_string(name)) {
     stop("Argument `name` must be a single string.")
   }
 
-  if (!is_number(port) && port <= 0) {
+  if (!is_number(port) || port <= 0) {
     stop("Argument `port` must be a valid port.")
   }
 
   proc <- callr::r_bg(
-    np_relay,
+    relay,
     args = list(
       name = name,
       port = port
@@ -106,58 +110,60 @@ np_relay <- function(name, port) {
 
   repeat {
     cl <- socketAccept(srv, blocking = TRUE, open = "r+b", timeout = 86400)
-    on.exit(close(cl))
 
-    try({
-      buf <- raw(0)
+    tryCatch(
+      {
+        buf <- raw(0)
 
-      # accept user request
-      repeat {
-        chunk <- readBin(cl, "raw", 1L)
-        if (!length(chunk)) break
-        buf <- c(buf, chunk)
-        if (has_end(buf)) break
-      }
-
-      len <- as.integer(sub(
-        "(?is).*\r\ncontent-length:\\s*([0-9]+).*",
-        "\\1",
-        rawToChar(buf),
-        perl = TRUE)
-      )
-
-      body <- if (is.na(len) || len == 0L) {
-        raw(0)
-      } else {
-        readBin(cl, "raw", len)
-      }
-
-      head <- rawToChar(buf)
-      head <- sub("\r\n[Cc]onnection:[^\r]*", "", head)
-      head <- sub("\r\n\r\n", "\r\nConnection: close\r\n\r\n", head, fixed = TRUE)
-      
-      # transfer request to named pipe
-      p <- winpipe(
-        pipe_name,
-        open = "r+b",
-        server = FALSE,
-        blocking = TRUE,
-        timeout = 5
-      )
-      on.exit(close(p))
-      writeBin(c(charToRaw(head), body), p)
-
-      # accept response from named pipe
-      repeat {
-        chunk <- readBin(p, "raw", 65536)
-        if (!length(chunk)) {
-          break
+        # accept user request
+        repeat {
+          chunk <- readBin(cl, "raw", 1L)
+          if (!length(chunk)) break
+          buf <- c(buf, chunk)
+          if (has_end(buf)) break
         }
 
-        writeBin(chunk, cl)
-      }
-      close(p)
-    })
+        # NA when the request has no Content-Length header
+        len <- suppressWarnings(as.integer(sub(
+          "(?is).*\r\ncontent-length:\\s*([0-9]+).*",
+          "\\1",
+          rawToChar(buf),
+          perl = TRUE)
+        ))
+
+        body <- if (is.na(len) || len == 0L) {
+          raw(0)
+        } else {
+          readBin(cl, "raw", len)
+        }
+
+        head <- rawToChar(buf)
+        head <- sub("\r\n[Cc]onnection:[^\r]*", "", head)
+        head <- sub("\r\n\r\n", "\r\nConnection: close\r\n\r\n", head, fixed = TRUE)
+        
+        # transfer request to named pipe
+        p <- winpipe(
+          name,
+          open = "r+b",
+          server = FALSE,
+          blocking = TRUE,
+          timeout = 5
+        )
+        writeBin(c(charToRaw(head), body), p)
+
+        # accept response from named pipe
+        repeat {
+          chunk <- readBin(p, "raw", 65536)
+          if (!length(chunk)) {
+            break
+          }
+
+          writeBin(chunk, cl)
+        }
+        close(p)
+      },
+      error = message
+    )
     close(cl)
   }
 }
@@ -181,7 +187,13 @@ has_end <- function(b) {
   n <- length(b)
   n >= 4 && any(vapply(
     seq_len(n - 3),
-    function(i) all(b[seq(i, i + 3)] == end),
+    function(i) all(b[seq(i, i + 3)] == charToRaw("\r\n\r\n")),
     FUN.VALUE = logical(1)
   ))
+}
+
+
+random_port <- function() {
+  check_installed("httpuv", "find a free port")
+  httpuv::randomPort()
 }

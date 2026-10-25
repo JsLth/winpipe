@@ -5,7 +5,7 @@
 \alias{np_relay}
 \title{Proxies}
 \usage{
-np_proxy(name, port = httpuv::randomPort())
+np_proxy(name, port = httpuv::randomPort(), relay = np_relay)
 
 np_relay(name, port)
 }
@@ -17,6 +17,12 @@ Pipe name, with or without the \verb{\\\\.\\pipe\\} prefix.}
 \item{port}{\code{[numeric(1)]}
 
 TCP port that the relay server should listen on.}
+
+\item{relay}{\code{[function]}
+
+A relay function that takes a named pipe name and a port and forwards
+requests and responses between a server and a client. Defaults to
+\code{np_relay}.}
 }
 \value{
 \code{np_proxy()} returns an object of class \code{winpipe_proxy}.

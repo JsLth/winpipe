@@ -1,9 +1,14 @@
 Package: winpipe
 Title: Interface to Windows Named Pipes
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     person("Jonas", "Lieth", , "jonas.lieth@gesis.org", role = c("aut", "cre", "cph"))
-Description: What the package does (one paragraph).
+Description: Provides support for Windows Named Pipes for inter-process
+    communication through the 'Win32' C++ API. Allows to create, connect,
+    disconnect, read from, and write to server and client pipes as standard
+    R connections. Includes convenience utilities to parse and build
+    Access Control List (ACL) security descriptors. HTTP requests are
+    indirectly supported via background relay servers.
 License: MIT + file LICENSE
 Encoding: UTF-8
 OS_type: windows
@@ -14,6 +19,9 @@ LinkingTo:
 Suggests: 
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    callr,
+    httpuv,
+    httr2
 Config/testthat/edition: 3
 VignetteBuilder: knitr

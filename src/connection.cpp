@@ -761,7 +761,7 @@ cpp11::list cpp_np_conn_peek(SEXP con) {
     const double buffered = static_cast<double>(s->len - s->pos);
 
     DWORD pipe_bytes = 0;
-    double available = NA_REAL;
+    double available = 0;
     DWORD error_code = 0;
     bool connected = false;
 
@@ -773,6 +773,7 @@ cpp11::list cpp_np_conn_peek(SEXP con) {
 
         switch (error_code) {
             case ERROR_INVALID_STATE:
+            case ERROR_BAD_PIPE:
             case ERROR_PIPE_LISTENING:
             case ERROR_PIPE_NOT_CONNECTED:
             case ERROR_BROKEN_PIPE:
@@ -991,9 +992,7 @@ cpp11::list token_info_list(HANDLE tok) {
     };
 }
 
-// Token information for a pipe's client (`impersonate = TRUE`) or for the
-// calling process itself. Impersonation, token access, and revert happen
-// atomically so no impersonation state leaks across R calls.
+// Token information for a pipe's client
 [[cpp11::register]]
 cpp11::list cpp_np_token_info(SEXP con, bool client) {
     HANDLE tok_raw = NULL;

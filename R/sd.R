@@ -1,6 +1,9 @@
 #' Build, parse and inspect security descriptors
 #'
 #' @description
+#' Security descriptors specify who can read or write a Windows object
+#' such as a named pipe. They can be passed to [winpipe()].
+#' 
 #' A security descriptor has an owner, a primary group, a DACL (who may access
 #' the pipe) and a SACL (auditing and integrity labels). These functions let
 #' you construct and convert it to and from an SDDL string.
@@ -11,9 +14,6 @@
 #' * \code{sd_build()} turns a descriptor into an SDDL string.
 #' * \code{sd_parse()} turns an SDDL string into a descriptor.
 #' * \code{sd_default()} returns the default DACL of the current token.
-#'
-#' Security descriptors are useful to control who can access or edit a named pipe
-#' on Windows. You can pass them to \code{\link{winpipe()}}.
 #' 
 #' @param owner,group \code{[character(1)]}
 #' 
@@ -24,11 +24,12 @@
 #' Optional ACL, a list with `flags` and `aces`.
 #' @param sd \code{[winpipe_sd]}
 #' 
-#' A security descriptor as created by \code{sd_make()}.
+#' A security descriptor as created by \code{sd_create()}.
 #' @param ... One or more [ace()] objects.
 #' @param acl \code{[character(1)]}
 #' 
-#' Which ACL to add to: `"dacl"` or `"sacl"`.
+#' Type of ACL to add to the security descriptor. Can be \code{"dacl"}
+#' or \code{"sacl"}.
 #' @param sddl \code{[character(1)]}
 #' 
 #' An SDDL string.
@@ -137,7 +138,7 @@ sd_parse <- function(sddl) {
 #' @rdname security_descriptor
 #' @export
 sd_default <- function() {
-  cpp_default_dacl()
+  sd_parse(cpp_default_dacl())
 }
 
 

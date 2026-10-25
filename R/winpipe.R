@@ -100,13 +100,13 @@ winpipe <- function(name,
     stop("`name` must be a single string.")
   }
 
-  if (!is_number(max_instances) ||
-      !(is.infinite(max_instances) || (max_instances >= 1 && max_instances <= 254))) {
+  if (!(is_number(max_instances) && (max_instances >= 1 && max_instances <= 254)) &&
+    !(is.infinite(max_instances))) {
     stop("`max_instances` must be `Inf` or a single number between 1 and 254.")
   }
 
-  if (!is_number(timeout)) {
-    stop("`timeout` must be a single number.")
+  if (!is_number(timeout) || timeout < 0) {
+    stop("`timeout` must be a single non-negative number.")
   }
 
   if (inherits(sddl, "winpipe_sd")) {

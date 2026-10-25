@@ -3,11 +3,6 @@ is_windows <- function() {
 }
 
 
-list_invert <- function(x) {
-  as.list(setNames(names(x), unlist(x)))
-}
-
-
 is_string <- function(x) {
   is.character(x) && length(x) == 1L && !is.na(x)
 }
@@ -18,9 +13,16 @@ is_number <- function(x) {
 }
 
 
-check_installed <- function(x) {
+check_installed <- function(x, reason = NULL) {
   if (!is_installed(x)) {
-    stop(sprintf("Package `%s` required. Install it with `install.packages(\"%s\")`.", x, x))
+    if (!is.null(reason)) {
+      stop(sprintf(
+        "Package `%s` required to %s. Install it with `install.packages(\"%s\")`.",
+        x, reason, x
+      ))
+    } else {
+      stop(sprintf("Package `%s` required. Install it with `install.packages(\"%s\")`.", x, x))
+    }
   }
 }
 
@@ -30,7 +32,7 @@ is_installed <- function(x) {
 }
 
 
-tabular <- function(df, ...) {
+tabular <- function(df, ...) { # nocov start
   stopifnot(is.data.frame(df))
 
   align <- function(x) if (is.numeric(x)) "r" else "l"
@@ -43,4 +45,4 @@ tabular <- function(df, ...) {
   paste("\\tabular{", paste(col_align, collapse = ""), "}{\n  ",
     paste0("\\strong{", names(df), "}", sep = "", collapse = " \\tab "), " \\cr\n  ",
     contents, "\n}\n", sep = "")
-}
+} # nocov end

@@ -33,11 +33,12 @@ Optional ACL, a list with \code{flags} and \code{aces}.}
 
 \item{sd}{\code{[winpipe_sd]}
 
-A security descriptor as created by \code{sd_make()}.}
+A security descriptor as created by \code{sd_create()}.}
 
 \item{acl}{\code{[character(1)]}
 
-Which ACL to add to: \code{"dacl"} or \code{"sacl"}.}
+Type of ACL to add to the security descriptor. Can be \code{"dacl"}
+or \code{"sacl"}.}
 
 \item{sddl}{\code{[character(1)]}
 
@@ -48,6 +49,9 @@ An SDDL string.}
 \code{"winpipe_sd"} list. \code{sd_build()} and \code{sd_default()} return
 }
 \description{
+Security descriptors specify who can read or write a Windows object
+such as a named pipe. They can be passed to \code{\link[=winpipe]{winpipe()}}.
+
 A security descriptor has an owner, a primary group, a DACL (who may access
 the pipe) and a SACL (auditing and integrity labels). These functions let
 you construct and convert it to and from an SDDL string.
@@ -59,9 +63,6 @@ the ACL.
 \item \code{sd_parse()} turns an SDDL string into a descriptor.
 \item \code{sd_default()} returns the default DACL of the current token.
 }
-
-Security descriptors are useful to control who can access or edit a named pipe
-on Windows. You can pass them to \code{\link{winpipe()}}.
 }
 \details{
 A parsed descriptor is a list with elements \code{owner}, \code{group},
