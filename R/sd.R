@@ -53,13 +53,13 @@
 #' grants nobody access.
 #'
 #' @examples
-#' x <- sd_new(owner = "admins") |>
+#' x <- sd_create(owner = "admins") |>
 #'   sd_add(ace(rights = "generic all", account = "local system")) |>
 #'   sd_add(ace(rights = c("GR", "GW"), account = "authenticated users"))
 #' x
 #' sd_build(x)
 #'
-#' identical(sd_build(sd_parse(sd_default())), sd_default())
+#' identical(sd_parse(sd_build(sd_default())), sd_default())
 #' @name security_descriptor
 NULL
 
