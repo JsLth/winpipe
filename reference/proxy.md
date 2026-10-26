@@ -61,6 +61,7 @@ if (np_exists("docker_engine") && requireNamespace("httr2")) {
 library(httr2)
 
 proxy <- np_proxy("docker_engine")
+on.exit(proxy$proc$kill())
 
 # GET requests, e.g., to query the docker version
 resp <- request(proxy$base_url) %>%
