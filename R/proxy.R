@@ -45,7 +45,7 @@
 #' resp <- request(proxy$base_url) %>%
 #'   req_url_path("/version") %>%
 #'   req_perform() %>%
-#'   resp_body_json(resp)
+#'   resp_body_json()
 #' resp[c("Version", "ApiVersion", "Os")]
 #' 
 #' # POST requests, e.g., to create a container
