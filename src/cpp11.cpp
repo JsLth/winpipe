@@ -71,26 +71,10 @@ extern "C" SEXP _winpipe_cpp_np_list() {
   END_CPP11
 }
 // connection.cpp
-void cpp_np_conn_impersonate(SEXP con);
-extern "C" SEXP _winpipe_cpp_np_conn_impersonate(SEXP con) {
-  BEGIN_CPP11
-    cpp_np_conn_impersonate(cpp11::as_cpp<cpp11::decay_t<SEXP>>(con));
-    return R_NilValue;
-  END_CPP11
-}
-// connection.cpp
 cpp11::list cpp_np_token_info(SEXP con, bool client);
 extern "C" SEXP _winpipe_cpp_np_token_info(SEXP con, SEXP client) {
   BEGIN_CPP11
     return cpp11::as_sexp(cpp_np_token_info(cpp11::as_cpp<cpp11::decay_t<SEXP>>(con), cpp11::as_cpp<cpp11::decay_t<bool>>(client)));
-  END_CPP11
-}
-// connection.cpp
-void cpp_np_revert();
-extern "C" SEXP _winpipe_cpp_np_revert() {
-  BEGIN_CPP11
-    cpp_np_revert();
-    return R_NilValue;
   END_CPP11
 }
 // connection.cpp
@@ -131,23 +115,21 @@ extern "C" SEXP _winpipe_cpp_sd_build(SEXP sd) {
 
 extern "C" {
 static const R_CallMethodDef CallEntries[] = {
-    {"_winpipe_cpp_default_dacl",        (DL_FUNC) &_winpipe_cpp_default_dacl,        0},
-    {"_winpipe_cpp_np_conn_accept",      (DL_FUNC) &_winpipe_cpp_np_conn_accept,      1},
-    {"_winpipe_cpp_np_conn_disconnect",  (DL_FUNC) &_winpipe_cpp_np_conn_disconnect,  1},
-    {"_winpipe_cpp_np_conn_exists",      (DL_FUNC) &_winpipe_cpp_np_conn_exists,      1},
-    {"_winpipe_cpp_np_conn_impersonate", (DL_FUNC) &_winpipe_cpp_np_conn_impersonate, 1},
-    {"_winpipe_cpp_np_conn_info",        (DL_FUNC) &_winpipe_cpp_np_conn_info,        1},
-    {"_winpipe_cpp_np_conn_peek",        (DL_FUNC) &_winpipe_cpp_np_conn_peek,        1},
-    {"_winpipe_cpp_np_conn_sddl",        (DL_FUNC) &_winpipe_cpp_np_conn_sddl,        1},
-    {"_winpipe_cpp_np_conn_state",       (DL_FUNC) &_winpipe_cpp_np_conn_state,       1},
-    {"_winpipe_cpp_np_conn_timeout",     (DL_FUNC) &_winpipe_cpp_np_conn_timeout,     3},
-    {"_winpipe_cpp_np_connection",       (DL_FUNC) &_winpipe_cpp_np_connection,       6},
-    {"_winpipe_cpp_np_list",             (DL_FUNC) &_winpipe_cpp_np_list,             0},
-    {"_winpipe_cpp_np_revert",           (DL_FUNC) &_winpipe_cpp_np_revert,           0},
-    {"_winpipe_cpp_np_sddl",             (DL_FUNC) &_winpipe_cpp_np_sddl,             2},
-    {"_winpipe_cpp_np_token_info",       (DL_FUNC) &_winpipe_cpp_np_token_info,       2},
-    {"_winpipe_cpp_sd_build",            (DL_FUNC) &_winpipe_cpp_sd_build,            1},
-    {"_winpipe_cpp_sd_parse",            (DL_FUNC) &_winpipe_cpp_sd_parse,            1},
+    {"_winpipe_cpp_default_dacl",       (DL_FUNC) &_winpipe_cpp_default_dacl,       0},
+    {"_winpipe_cpp_np_conn_accept",     (DL_FUNC) &_winpipe_cpp_np_conn_accept,     1},
+    {"_winpipe_cpp_np_conn_disconnect", (DL_FUNC) &_winpipe_cpp_np_conn_disconnect, 1},
+    {"_winpipe_cpp_np_conn_exists",     (DL_FUNC) &_winpipe_cpp_np_conn_exists,     1},
+    {"_winpipe_cpp_np_conn_info",       (DL_FUNC) &_winpipe_cpp_np_conn_info,       1},
+    {"_winpipe_cpp_np_conn_peek",       (DL_FUNC) &_winpipe_cpp_np_conn_peek,       1},
+    {"_winpipe_cpp_np_conn_sddl",       (DL_FUNC) &_winpipe_cpp_np_conn_sddl,       1},
+    {"_winpipe_cpp_np_conn_state",      (DL_FUNC) &_winpipe_cpp_np_conn_state,      1},
+    {"_winpipe_cpp_np_conn_timeout",    (DL_FUNC) &_winpipe_cpp_np_conn_timeout,    3},
+    {"_winpipe_cpp_np_connection",      (DL_FUNC) &_winpipe_cpp_np_connection,      6},
+    {"_winpipe_cpp_np_list",            (DL_FUNC) &_winpipe_cpp_np_list,            0},
+    {"_winpipe_cpp_np_sddl",            (DL_FUNC) &_winpipe_cpp_np_sddl,            2},
+    {"_winpipe_cpp_np_token_info",      (DL_FUNC) &_winpipe_cpp_np_token_info,      2},
+    {"_winpipe_cpp_sd_build",           (DL_FUNC) &_winpipe_cpp_sd_build,           1},
+    {"_winpipe_cpp_sd_parse",           (DL_FUNC) &_winpipe_cpp_sd_parse,           1},
     {NULL, NULL, 0}
 };
 }

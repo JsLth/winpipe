@@ -859,15 +859,6 @@ cpp11::strings cpp_np_list() {
 }
 
 
-[[cpp11::register]]
-void cpp_np_conn_impersonate(SEXP con) {
-    HANDLE h = checked_state(con)->h;
-
-    if (!ImpersonateNamedPipeClient(h)) {
-        cpp11::stop(GetErrorMessage(GetLastError()).c_str());
-    }
-}
-
 // --- Token information ------------------------------------------------------
 
 struct HandleGuard {
@@ -1017,12 +1008,6 @@ cpp11::list cpp_np_token_info(SEXP con, bool client) {
     }
 }
 
-[[cpp11::register]]
-void cpp_np_revert() {
-    if (!RevertToSelf()) {
-        cpp11::stop(GetErrorMessage(GetLastError()).c_str());
-    }
-}
 
 // Defined in dacl.cpp.
 std::string sddl_from_handle(HANDLE h, DWORD info);

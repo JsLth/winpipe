@@ -46,16 +46,3 @@ test_that("token info of a server without client fails", {
   on.exit(close(srv), add = TRUE)
   expect_error(np_token_info(srv), "ImpersonateNamedPipeClient")
 })
-
-
-test_that("clients can be impersonated and reverted", {
-  srv <- winpipe("test")
-  cli <- winpipe("test")
-  on.exit(close(cli), add = TRUE)
-  on.exit(close(srv), add = TRUE)
-
-  writeLines("hello", cli)
-  readLines(srv)
-  expect_no_error(winpipe:::np_impersonate(srv))
-  expect_no_error(np_revert())
-})

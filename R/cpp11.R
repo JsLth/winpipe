@@ -36,16 +36,8 @@ cpp_np_list <- function() {
   .Call(`_winpipe_cpp_np_list`)
 }
 
-cpp_np_conn_impersonate <- function(con) {
-  invisible(.Call(`_winpipe_cpp_np_conn_impersonate`, con))
-}
-
 cpp_np_token_info <- function(con, client) {
   .Call(`_winpipe_cpp_np_token_info`, con, client)
-}
-
-cpp_np_revert <- function() {
-  invisible(.Call(`_winpipe_cpp_np_revert`))
 }
 
 cpp_np_conn_sddl <- function(con) {
