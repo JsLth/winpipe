@@ -9,9 +9,6 @@
   [`np_peek()`](https://jslth.github.io/winpipe/reference/info.md)
   [`np_sd()`](https://jslth.github.io/winpipe/reference/info.md) :
   Low-level information about a named pipe
-- [`np_impersonate()`](https://jslth.github.io/winpipe/reference/np_impersonate.md)
-  [`np_revert()`](https://jslth.github.io/winpipe/reference/np_impersonate.md)
-  : Impersonation
 - [`np_whoami()`](https://jslth.github.io/winpipe/reference/np_whoami.md)
   [`np_token_info()`](https://jslth.github.io/winpipe/reference/np_whoami.md)
   : Security token information
