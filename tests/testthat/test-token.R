@@ -44,5 +44,5 @@ test_that("token info validates its input", {
 test_that("token info of a server without client fails", {
   srv <- winpipe("test")
   on.exit(close(srv), add = TRUE)
-  expect_error(np_token_info(srv), "ImpersonateNamedPipeClient")
+  expect_error(np_token_info(srv), "Unable to impersonat")
 })

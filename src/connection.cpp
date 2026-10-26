@@ -540,7 +540,7 @@ int np_con_fgetc(Rconnection con) {
         if (!con->blocking) {
             DWORD avail;
             IoResult p = peek_available(s, &avail);
-            if (p.status == IoStatus::Error) win_error(p.err, "PeekNamedPipe");
+            if (p.status == IoStatus::Error) win_error(p.err);
             if (p.status != IoStatus::Ok) {
                 con->incomplete = RB_FALSE;  // peer gone: real EOF
                 return -1;
@@ -870,7 +870,7 @@ struct ImpersonationGuard {
     bool active = false;
     explicit ImpersonationGuard(HANDLE pipe) {
         if (!ImpersonateNamedPipeClient(pipe)) {
-            win_error(GetLastError(), "ImpersonateNamedPipeClient");
+            win_error(GetLastError());
         }
         active = true;
     }
@@ -883,10 +883,10 @@ struct ImpersonationGuard {
 std::vector<BYTE> token_info(HANDLE tok, TOKEN_INFORMATION_CLASS cls) {
     DWORD need = 0;
     GetTokenInformation(tok, cls, nullptr, 0, &need);
-    if (need == 0) win_error(GetLastError(), "GetTokenInformation");
+    if (need == 0) win_error(GetLastError());
     std::vector<BYTE> buf(need);
     if (!GetTokenInformation(tok, cls, buf.data(), need, &need)) {
-        win_error(GetLastError(), "GetTokenInformation");
+        win_error(GetLastError());
     }
     return buf;
 }
@@ -894,7 +894,7 @@ std::vector<BYTE> token_info(HANDLE tok, TOKEN_INFORMATION_CLASS cls) {
 std::string sid_to_string(PSID sid) {
     LPWSTR str = nullptr;
     if (!ConvertSidToStringSidW(sid, &str)) {
-        win_error(GetLastError(), "ConvertSidToStringSid");
+        win_error(GetLastError());
     }
     std::string out = wstring_to_utf8(str);
     LocalFree(str);
@@ -995,13 +995,13 @@ cpp11::list cpp_np_token_info(SEXP con, bool client) {
         }
         ImpersonationGuard guard(s->h);
         if (!OpenThreadToken(GetCurrentThread(), TOKEN_QUERY, TRUE, &tok_raw)) {
-            win_error(GetLastError(), "OpenThreadToken");
+            win_error(GetLastError());
         }
         HandleGuard tok{tok_raw};
         return token_info_list(tok_raw);
     } else {
         if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &tok_raw)) {
-            win_error(GetLastError(), "OpenProcessToken");
+            win_error(GetLastError());
         }
         HandleGuard tok{tok_raw};
         return token_info_list(tok_raw);
