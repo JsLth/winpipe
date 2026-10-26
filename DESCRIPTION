@@ -9,6 +9,8 @@ Description: Provides support for Windows Named Pipes for inter-process
     R connections. Includes convenience utilities to parse and build
     Access Control List (ACL) security descriptors. HTTP requests are
     indirectly supported via background relay servers.
+URL: https://github.com/jslth/winpipe, https://jslth.github.io/winpipe/
+BugReports: https://github.com/jslth/winpipe/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 OS_type: windows
