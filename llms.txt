@@ -1,10 +1,11 @@
 # winpipe
 
-`{winpipe}` exposes Win32 Named Pipes as R connections to read from and
-write to. Named Pipes are a device for inter-process communication (IPC)
-that are part of the file system and allow for fine-grained access
-control. R has native support for FIFOs on Unix-like systems but does
-not expose any API for named pipes on Windows.
+[winpipe](https://github.com/jslth/winpipe) exposes Win32 Named Pipes as
+R connections to read from and write to. Named Pipes are a device for
+inter-process communication (IPC) that are part of the file system and
+allow for fine-grained access control. R has native support for FIFOs on
+Unix-like systems but does not expose any API for named pipes on
+Windows.
 
 Features:
 
@@ -80,8 +81,9 @@ np_peek(server)
 One cool thing about named pipes is their access control. Named pipes
 support security descriptors using
 [DACL](https://de.wikipedia.org/wiki/Discretionary_Access_Control) and
-`{winpipe}` includes a small API to construct ACLs. To allow only admins
-and the local system to access a named pipe, you can do:
+[winpipe](https://github.com/jslth/winpipe) includes a small API to
+construct ACLs. To allow only admins and the local system to access a
+named pipe, you can do:
 
 ``` r
 

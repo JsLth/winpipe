@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Interface to Windows Named Pipes • winpipe</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
   window.MathJax = {
     chtml: {
@@ -54,6 +59,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/jslth/winpipe/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -68,7 +74,7 @@
 </div>
 <!-- badges: start -->
 
-<p><code>{winpipe}</code> exposes Win32 Named Pipes as R connections to read from and write to. Named Pipes are a device for inter-process communication (IPC) that are part of the file system and allow for fine-grained access control. R has native support for FIFOs on Unix-like systems but does not expose any API for named pipes on Windows.</p>
+<p><a href="https://github.com/jslth/winpipe" class="external-link">winpipe</a> exposes Win32 Named Pipes as R connections to read from and write to. Named Pipes are a device for inter-process communication (IPC) that are part of the file system and allow for fine-grained access control. R has native support for FIFOs on Unix-like systems but does not expose any API for named pipes on Windows.</p>
 <p>Features:</p>
 <ul>
 <li>Create and serve Windows named pipes, i.e., R can be both client and server</li>
@@ -91,7 +97,7 @@
 </h2>
 <p>To communicate between processes, a server and a client are required:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">winpipe</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jslth/winpipe" class="external-link">winpipe</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">server</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/winpipe.html">winpipe</a></span><span class="op">(</span><span class="st">"a-pipe"</span><span class="op">)</span></span>
 <span><span class="va">client</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/winpipe.html">winpipe</a></span><span class="op">(</span><span class="st">"a-pipe"</span>, server <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -112,7 +118,7 @@
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/info.html">np_peek</a></span><span class="op">(</span><span class="va">server</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0</span></span></code></pre></div>
-<p>One cool thing about named pipes is their access control. Named pipes support security descriptors using <a href="https://de.wikipedia.org/wiki/Discretionary_Access_Control" class="external-link">DACL</a> and <code>{winpipe}</code> includes a small API to construct ACLs. To allow only admins and the local system to access a named pipe, you can do:</p>
+<p>One cool thing about named pipes is their access control. Named pipes support security descriptors using <a href="https://de.wikipedia.org/wiki/Discretionary_Access_Control" class="external-link">DACL</a> and <a href="https://github.com/jslth/winpipe" class="external-link">winpipe</a> includes a small API to construct ACLs. To allow only admins and the local system to access a named pipe, you can do:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sd</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/security_descriptor.html">sd_create</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="reference/ace.html">ace</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"deny"</span>, rights <span class="op">=</span> <span class="st">"generic all"</span>, account <span class="op">=</span> <span class="st">"everyone"</span><span class="op">)</span>,</span>
@@ -140,7 +146,15 @@
 </ul>
 </div>
 </div>
-  </main><aside class="col-md-3"><div class="license">
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/jslth/winpipe/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/jslth/winpipe/issues" class="external-link">Report a bug</a></li>
+</ul>
+</div>
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
