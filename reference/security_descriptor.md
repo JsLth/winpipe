@@ -98,15 +98,15 @@ nobody access.
 ## Examples
 
 ``` r
-x <- sd_new(owner = "admins") |>
+x <- sd_create(owner = "admins") |>
   sd_add(ace(rights = "generic all", account = "local system")) |>
   sd_add(ace(rights = c("GR", "GW"), account = "authenticated users"))
-#> Error in sd_new(owner = "admins"): could not find function "sd_new"
 x
-#> Error: object 'x' not found
+#> <winpipe_sd>
+#> O:BAD:(A;;GA;;;SY)(A;;GRGW;;;AU)
 sd_build(x)
-#> Error: object 'x' not found
+#> [1] "O:BAD:(A;;GA;;;SY)(A;;GRGW;;;AU)"
 
-identical(sd_build(sd_parse(sd_default())), sd_default())
-#> Error in sd_parse(sd_default()): Argument `sddl` must be a single string.
+identical(sd_parse(sd_build(sd_default())), sd_default())
+#> [1] TRUE
 ```
