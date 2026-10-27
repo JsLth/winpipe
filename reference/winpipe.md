@@ -167,12 +167,12 @@ readLines(server)
 #> character(0)
 
 # Client writes to pipe
-cat("hello", file = client)
+cat("hello\n", file = client)
 writeLines("world", client)
 
 # Server can now receive the content
 readLines(server)
-#> [1] "helloworld"
+#> [1] "hello" "world"
 
 close(client)
 close(server)
@@ -185,7 +185,10 @@ close(server)
 
 server <- winpipe("test", open = "r+b")
 client <- winpipe("test", open = "r+b", server = FALSE)
-writeBin(raw(1), server)
+writeBin(as.raw(1), server)
 readBin(client, "raw")
-#> [1] 00
+#> [1] 01
+
+close(server)
+close(client)
 ```

@@ -75,13 +75,12 @@ sd_default()
 
 ## Value
 
-`sd_new()`, `sd_add()`, and `sd_parse()` return a `"winpipe_sd"` list.
-`sd_build()` and `sd_default()` return
-
-## Details
+`sd_create()`, `sd_add()`, `sd_parse()` and `sd_default()` all return a
+security descriptor of class `winpipe_sd`. `sd_build()` returns a
+character string.
 
 A parsed descriptor is a list with elements `owner`, `group`, `dacl`,
-and `sacl`. Written as a string, a descriptor looks like this:
+and `sacl`. Written as a string, a descriptor can look like this:
 
     O:BAG:WDD:(A;IO;GRGW;;;SY)
 
@@ -93,7 +92,7 @@ specify the DACL configurations. Multiple ACEs can follow each other.
 Each ACE is a list with `type`, `flags`, `rights`, `object_guid`,
 `inherit`, `account` and `extra`. A `NULL` DACL means the section is
 absent, whereas an empty one (`flags` and `aces` both empty) grants
-nobody access.
+nobody access. See `[ace()]`.
 
 ## Examples
 

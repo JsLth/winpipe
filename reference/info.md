@@ -114,6 +114,10 @@ readLines(srv, n = 1)
 np_peek(srv)
 #> [1] 6
 
+np_sd(srv)
+#> <winpipe_sd>
+#> O:BAG:S-1-5-21-3776380004-1005456608-3524014338-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;S-1-5-5-0-758389)
+
 close(srv)
 close(cli)
 ```

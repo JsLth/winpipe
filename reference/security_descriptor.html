@@ -129,13 +129,12 @@ or <code>"sacl"</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>sd_new()</code>, <code>sd_add()</code>, and <code>sd_parse()</code> return a
-<code>"winpipe_sd"</code> list. <code>sd_build()</code> and <code>sd_default()</code> return</p>
-    </div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>A parsed descriptor is a list with elements <code>owner</code>, <code>group</code>,
-<code>dacl</code>, and <code>sacl</code>. Written as a string, a descriptor looks like this:</p>
+    <p><code>sd_create()</code>, <code>sd_add()</code>, <code>sd_parse()</code> and <code>sd_default()</code>
+all return a security descriptor of class <code>winpipe_sd</code>. <code>sd_build()</code>
+returns a character string.</p>
+<p>A parsed descriptor is a list with elements <code>owner</code>,
+<code>group</code>, <code>dacl</code>, and <code>sacl</code>. Written as a string, a descriptor can
+look like this:</p>
 <div class="sourceCode"><pre><code>O:BAG:WDD:(A;IO;GRGW;;;SY)</code></pre></div>
 
 <p>The prefix specifies the owner, primary group and DACL. Wrapped inside brackets
@@ -144,7 +143,7 @@ Multiple ACEs can follow each other.</p>
 <p>Each ACE is a list with <code>type</code>, <code>flags</code>, <code>rights</code>, <code>object_guid</code>,
 <code>inherit</code>, <code>account</code> and <code>extra</code>. A <code>NULL</code> DACL means the
 section is absent, whereas an empty one (<code>flags</code> and <code>aces</code> both empty)
-grants nobody access.</p>
+grants nobody access. See <code>[ace()]</code>.</p>
     </div>
 
     <div class="section level2">
