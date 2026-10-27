@@ -137,7 +137,7 @@ client <- winpipe("test", server = FALSE)
 readLines(server)
 
 # Client writes to pipe
-cat("hello", file = client)
+cat("hello\n", file = client)
 writeLines("world", client)
 
 # Server can now receive the content
@@ -153,6 +153,9 @@ close(server)
 
 server <- winpipe("test", open = "r+b")
 client <- winpipe("test", open = "r+b", server = FALSE)
-writeBin(raw(1), server)
+writeBin(as.raw(1), server)
 readBin(client, "raw")
+
+close(server)
+close(client)
 }

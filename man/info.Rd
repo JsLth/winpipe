@@ -65,6 +65,8 @@ np_peek(srv)
 readLines(srv, n = 1)
 np_peek(srv)
 
+np_sd(srv)
+
 close(srv)
 close(cli)
 }

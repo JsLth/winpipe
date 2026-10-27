@@ -45,8 +45,24 @@ or \code{"sacl"}.}
 An SDDL string.}
 }
 \value{
-\code{sd_new()}, \code{sd_add()}, and \code{sd_parse()} return a
-\code{"winpipe_sd"} list. \code{sd_build()} and \code{sd_default()} return
+\code{sd_create()}, \code{sd_add()}, \code{sd_parse()} and \code{sd_default()}
+all return a security descriptor of class \code{winpipe_sd}. \code{sd_build()}
+returns a character string.
+
+A parsed descriptor is a list with elements \code{owner},
+\code{group}, \code{dacl}, and \code{sacl}. Written as a string, a descriptor can
+look like this:
+
+\preformatted{O:BAG:WDD:(A;IO;GRGW;;;SY)}
+
+The prefix specifies the owner, primary group and DACL. Wrapped inside brackets
+are the individual \code{\link{ace}}s, which specify the DACL configurations.
+Multiple ACEs can follow each other.
+
+Each ACE is a list with \code{type}, \code{flags}, \code{rights}, \code{object_guid},
+\code{inherit}, \code{account} and \code{extra}. A \code{NULL} DACL means the
+section is absent, whereas an empty one (\code{flags} and \code{aces} both empty)
+grants nobody access. See \verb{[ace()]}.
 }
 \description{
 Security descriptors specify who can read or write a Windows object
@@ -63,21 +79,6 @@ the ACL.
 \item \code{sd_parse()} turns an SDDL string into a descriptor.
 \item \code{sd_default()} returns the default DACL of the current token.
 }
-}
-\details{
-A parsed descriptor is a list with elements \code{owner}, \code{group},
-\code{dacl}, and \code{sacl}. Written as a string, a descriptor looks like this:
-
-\preformatted{O:BAG:WDD:(A;IO;GRGW;;;SY)}
-
-The prefix specifies the owner, primary group and DACL. Wrapped inside brackets
-are the individual \code{\link{ace}}s, which specify the DACL configurations.
-Multiple ACEs can follow each other.
-
-Each ACE is a list with \code{type}, \code{flags}, \code{rights}, \code{object_guid},
-\code{inherit}, \code{account} and \code{extra}. A \code{NULL} DACL means the
-section is absent, whereas an empty one (\code{flags} and \code{aces} both empty)
-grants nobody access.
 }
 \examples{
 x <- sd_create(owner = "admins") |>
