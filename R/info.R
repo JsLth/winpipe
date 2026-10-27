@@ -44,11 +44,11 @@
 #' np_config(srv)
 #' np_state(srv)
 #' 
-#' np_peek(cli)
+#' np_peek(srv)
 #' writeLines("hello\nworld", cli)
-#' np_peek(cli)
+#' np_peek(srv)
 #' readLines(srv, n = 1)
-#' np_peek(cli)
+#' np_peek(srv)
 #' 
 #' close(srv)
 #' close(cli)

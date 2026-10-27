@@ -28,9 +28,10 @@ Get or set the I/O timeout of a pipe connection
 }
 \examples{
 np <- winpipe("test")
-on.exit(close(np))
 
 np_get_timeout(np)
 np_set_timeout(np, Inf)
 np_get_timeout(np)
+
+close(np)
 }

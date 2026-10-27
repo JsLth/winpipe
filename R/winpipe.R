@@ -94,13 +94,23 @@
 #' 
 #' # Client writes to pipe
 #' cat("hello", file = client)
-#' writeLines("world")
+#' writeLines("world", client)
 #' 
 #' # Server can now receive the content
 #' readLines(server)
 #' 
 #' close(client)
 #' close(server)
+#' 
+#' # To read binary, you need to specify it
+#' server <- winpipe("test")
+#' try(writeBin(raw(1), server))
+#' close(server)
+#' 
+#' server <- winpipe("test", open = "r+b")
+#' client <- winpipe("test", open = "r+b", server = FALSE)
+#' writeBin(raw(1), server)
+#' readBin(client, "raw")
 winpipe <- function(name,
                     open = "r+",
                     server = !np_exists(name),

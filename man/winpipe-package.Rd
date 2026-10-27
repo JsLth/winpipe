@@ -9,6 +9,15 @@
 
 Provides support for Windows Named Pipes for inter-process communication through the 'Win32' C++ API. Allows to create, connect, disconnect, read from, and write to server and client pipes as standard R connections. Includes convenience utilities to parse and build Access Control List (ACL) security descriptors. HTTP requests are indirectly supported via background relay servers.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/jslth/winpipe}
+  \item \url{https://jslth.github.io/winpipe/}
+  \item Report bugs at \url{https://github.com/jslth/winpipe/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Jonas Lieth \email{jonas.lieth@gesis.org} [copyright holder]
 

@@ -15,11 +15,12 @@
 #' 
 #' @examples
 #' np <- winpipe("test")
-#' on.exit(close(np))
 #' 
 #' np_get_timeout(np)
 #' np_set_timeout(np, Inf)
 #' np_get_timeout(np)
+#' 
+#' close(np)
 np_set_timeout <- function(con, timeout) {
   check_winpipe(con)
   invisible(cpp_np_conn_timeout(con, as.double(timeout), TRUE))
