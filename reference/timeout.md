@@ -34,12 +34,12 @@ np_get_timeout(con)
 
 ``` r
 np <- winpipe("test")
-on.exit(close(np))
 
 np_get_timeout(np)
-#> Error in cpp_np_conn_timeout(con, 0, FALSE): invalid connection
+#> [1] 60
 np_set_timeout(np, Inf)
-#> Error in cpp_np_conn_timeout(con, as.double(timeout), TRUE): invalid connection
 np_get_timeout(np)
-#> Error in cpp_np_conn_timeout(con, 0, FALSE): invalid connection
+#> [1] Inf
+
+close(np)
 ```

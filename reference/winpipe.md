@@ -168,13 +168,24 @@ readLines(server)
 
 # Client writes to pipe
 cat("hello", file = client)
-writeLines("world")
-#> world
+writeLines("world", client)
 
 # Server can now receive the content
 readLines(server)
-#> character(0)
+#> [1] "helloworld"
 
 close(client)
 close(server)
+
+# To read binary, you need to specify it
+server <- winpipe("test")
+try(writeBin(raw(1), server))
+#> Error in writeBin(raw(1), server) : can only write to a binary connection
+close(server)
+
+server <- winpipe("test", open = "r+b")
+client <- winpipe("test", open = "r+b", server = FALSE)
+writeBin(raw(1), server)
+readBin(client, "raw")
+#> [1] 00
 ```

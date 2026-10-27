@@ -104,15 +104,15 @@ np_state(srv)
 #> [1] "runneradmin"
 #> 
 
-np_peek(cli)
+np_peek(srv)
 #> [1] 0
 writeLines("hello\nworld", cli)
-np_peek(cli)
-#> [1] 0
+np_peek(srv)
+#> [1] 12
 readLines(srv, n = 1)
 #> [1] "hello"
-np_peek(cli)
-#> [1] 0
+np_peek(srv)
+#> [1] 6
 
 close(srv)
 close(cli)
