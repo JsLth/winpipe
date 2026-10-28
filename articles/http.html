@@ -88,12 +88,10 @@ technically, can be communicated with like so:</p>
 <code class="sourceCode R"><span><span class="co"># check if docker is running</span></span>
 <span><span class="co"># start docker desktop if not</span></span>
 <span><span class="fu"><a href="../reference/winpipe.html">np_exists</a></span><span class="op">(</span><span class="st">"docker_engine"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
 <span></span>
 <span><span class="co"># Connect to docker</span></span>
 <span><span class="va">pipe</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/winpipe.html">winpipe</a></span><span class="op">(</span><span class="st">"docker_engine"</span>, open <span class="op">=</span> <span class="st">"r+b"</span>, server <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `open.connection()`:</span></span>
-<span><span class="co">#&gt; ! Das System kann die angegebene Datei nicht finden.</span></span>
 <span></span>
 <span><span class="co"># Manually craft a request</span></span>
 <span><span class="va">req</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
@@ -106,20 +104,12 @@ technically, can be communicated with like so:</p>
 <span></span>
 <span><span class="co"># Send the request</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readBin.html" class="external-link">writeBin</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rawConversion.html" class="external-link">charToRaw</a></span><span class="op">(</span><span class="va">req</span><span class="op">)</span>, <span class="va">pipe</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `writeBin()`:</span></span>
-<span><span class="co">#&gt; ! invalid connection</span></span>
 <span></span>
 <span><span class="co"># Read the response</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readBin.html" class="external-link">readBin</a></span><span class="op">(</span><span class="va">pipe</span>, <span class="st">"raw"</span>, <span class="fl">65536</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `readBin()`:</span></span>
-<span><span class="co">#&gt; ! invalid connection</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">close</a></span><span class="op">(</span><span class="va">pipe</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `UseMethod()`:</span></span>
-<span><span class="co">#&gt; ! no applicable method for 'close' applied to an object of class "function"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rawConversion.html" class="external-link">rawToChar</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error:</span></span>
-<span><span class="co">#&gt; ! object 'res' not found</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rawConversion.html" class="external-link">rawToChar</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>And while this is technically a solution, you have to take care of
 proper HTTP handling yourself, that is, making requests, parsing
 responses and all the nitty gritty in between. R already has ways to
@@ -140,7 +130,7 @@ process</li>
 <span><span class="va">proxy</span></span>
 <span><span class="co">#&gt; &lt;winpipe_proxy&gt;</span></span>
 <span><span class="co">#&gt;   winpipe:   \\.\pipe\docker_engine </span></span>
-<span><span class="co">#&gt;   base url:  http://127.0.0.1:9863/ </span></span>
+<span><span class="co">#&gt;   base url:  http://127.0.0.1:37949/ </span></span>
 <span><span class="co">#&gt;   listening: yes</span></span></code></pre></div>
 <p>The base URL shown in the console is the server you can connect to.
 The “listening” simply means that the background server hasn’t died yet.
@@ -152,14 +142,9 @@ You can now send requests through curl, like so:</p>
 <span>  <span class="fu"><a href="https://httr2.r-lib.org/reference/req_url.html" class="external-link">req_url_path</a></span><span class="op">(</span><span class="st">"/version"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://httr2.r-lib.org/reference/req_perform.html" class="external-link">req_perform</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://httr2.r-lib.org/reference/resp_body_raw.html" class="external-link">resp_body_json</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `req_perform()`:</span></span>
-<span><span class="co">#&gt; ! Failed to perform HTTP request.</span></span>
-<span><span class="co">#&gt; Caused by error in `curl::curl_fetch_memory()`:</span></span>
-<span><span class="co">#&gt; ! Failure when receiving data from the peer [127.0.0.1]:</span></span>
-<span><span class="co">#&gt; Recv failure: Connection was reset</span></span>
 <span><span class="va">resp</span><span class="op">$</span><span class="va">Platform</span></span>
-<span><span class="co">#&gt; Error:</span></span>
-<span><span class="co">#&gt; ! object 'resp' not found</span></span></code></pre></div>
+<span><span class="co">#&gt; $Name</span></span>
+<span><span class="co">#&gt; [1] "Docker Desktop 4.96.3 (244472)"</span></span></code></pre></div>
 <p>POST and DELETE requests work, too. For example, to download or
 delete an image:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -169,45 +154,37 @@ delete an image:</p>
 <span>  <span class="fu"><a href="https://httr2.r-lib.org/reference/req_method.html" class="external-link">req_method</a></span><span class="op">(</span><span class="st">"POST"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://httr2.r-lib.org/reference/req_perform.html" class="external-link">req_perform</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://httr2.r-lib.org/reference/resp_body_raw.html" class="external-link">resp_body_string</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `req_perform()`:</span></span>
-<span><span class="co">#&gt; ! Failed to perform HTTP request.</span></span>
-<span><span class="co">#&gt; Caused by error in `curl::curl_fetch_memory()`:</span></span>
-<span><span class="co">#&gt; ! Could not connect to server [127.0.0.1]:</span></span>
-<span><span class="co">#&gt; Failed to connect to 127.0.0.1 port 9863 after 2032 ms: Could not connect to server</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">pull</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error:</span></span>
-<span><span class="co">#&gt; ! object 'pull' not found</span></span></code></pre></div>
+<span><span class="co">#&gt; {"status":"Pulling from library/hello-world","id":"latest"}</span></span>
+<span><span class="co">#&gt; {"status":"Pulling fs layer","progressDetail":{},"id":"4f55086f7dd0"}</span></span>
+<span><span class="co">#&gt; {"status":"Downloading","progressDetail":{"current":2415,"total":2415},"id":"4f55086f7dd0"}</span></span>
+<span><span class="co">#&gt; {"status":"Download complete","progressDetail":{},"id":"4f55086f7dd0"}</span></span>
+<span><span class="co">#&gt; {"status":"Extracting","progressDetail":{"current":2415,"total":2415},"id":"4f55086f7dd0"}</span></span>
+<span><span class="co">#&gt; {"status":"Extracting","progressDetail":{"current":2415,"total":2415},"id":"4f55086f7dd0"}</span></span>
+<span><span class="co">#&gt; {"status":"Pull complete","progressDetail":{},"id":"4f55086f7dd0"}</span></span>
+<span><span class="co">#&gt; {"status":"Digest: sha256:c567b231f65614688711a75f31518a064258a51d442117a3e771a3a8fdba78ef"}</span></span>
+<span><span class="co">#&gt; {"status":"Status: Downloaded newer image for hello-world:latest"}</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">img</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://httr2.r-lib.org/reference/request.html" class="external-link">request</a></span><span class="op">(</span><span class="va">proxy</span><span class="op">$</span><span class="va">base_url</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://httr2.r-lib.org/reference/req_url.html" class="external-link">req_url_path</a></span><span class="op">(</span><span class="st">"/images/json"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://httr2.r-lib.org/reference/req_perform.html" class="external-link">req_perform</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://httr2.r-lib.org/reference/resp_body_raw.html" class="external-link">resp_body_json</a></span><span class="op">(</span>simplifyVector <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `req_perform()`:</span></span>
-<span><span class="co">#&gt; ! Failed to perform HTTP request.</span></span>
-<span><span class="co">#&gt; Caused by error in `curl::curl_fetch_memory()`:</span></span>
-<span><span class="co">#&gt; ! Could not connect to server [127.0.0.1]:</span></span>
-<span><span class="co">#&gt; Failed to connect to 127.0.0.1 port 9863 after 2055 ms: Could not connect to server</span></span>
 <span><span class="va">id</span> <span class="op">&lt;-</span> <span class="va">img</span><span class="op">$</span><span class="va">Id</span></span>
-<span><span class="co">#&gt; Error:</span></span>
-<span><span class="co">#&gt; ! object 'img' not found</span></span>
 <span></span>
 <span><span class="va">del</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://httr2.r-lib.org/reference/request.html" class="external-link">request</a></span><span class="op">(</span><span class="va">proxy</span><span class="op">$</span><span class="va">base_url</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://httr2.r-lib.org/reference/req_url.html" class="external-link">req_url_path</a></span><span class="op">(</span><span class="st">"/images"</span>, <span class="va">id</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://httr2.r-lib.org/reference/req_method.html" class="external-link">req_method</a></span><span class="op">(</span><span class="st">"DELETE"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://httr2.r-lib.org/reference/req_perform.html" class="external-link">req_perform</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error:</span></span>
-<span><span class="co">#&gt; ! object 'id' not found</span></span>
 <span><span class="va">del</span><span class="op">$</span><span class="va">status_code</span></span>
-<span><span class="co">#&gt; Error:</span></span>
-<span><span class="co">#&gt; ! object 'del' not found</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 200</span></span></code></pre></div>
 <p>Since proxies are background R processes, you have to handle them
 like one. To close a named pipe, kill the process.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proxy</span><span class="op">$</span><span class="va">proc</span></span>
-<span><span class="co">#&gt; PROCESS 'Rterm', finished.</span></span></code></pre></div>
+<span><span class="co">#&gt; PROCESS 'Rterm', running, pid 24248.</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proxy</span><span class="op">$</span><span class="va">proc</span><span class="op">$</span><span class="fu">kill</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
   </main>
 </div>
 
