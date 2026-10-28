@@ -59,6 +59,11 @@
 #' All methods accepting a connection work on named pipes. Use \code{open = "r+b"} for
 #' \code{\link{readBin}} and \code{\link{writeBin}}.
 #' 
+#' \code{is_winpipe()} and \code{np_exists()} return \code{TRUE} or \code{FALSE}.
+#' \code{np_listen()} and \code{np_disconnect()} return nothing and are
+#' called for their side effects.
+#' \code{np_list()} returns a character vector of named pipes on the system.
+#' 
 #' @details
 #' Named pipes behave differently depending on whether they are initialized as a
 #' server or client. When \code{server = TRUE}, \code{open()} creates the named

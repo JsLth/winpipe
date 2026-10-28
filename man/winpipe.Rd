@@ -91,6 +91,11 @@ A \code{winpipe} connection created by \code{winpipe}.}
 \code{named_pipe} returns a connection of class \code{"named_pipe"}.
 All methods accepting a connection work on named pipes. Use \code{open = "r+b"} for
 \code{\link{readBin}} and \code{\link{writeBin}}.
+
+\code{is_winpipe()} and \code{np_exists()} return \code{TRUE} or \code{FALSE}.
+\code{np_listen()} and \code{np_disconnect()} return nothing and are
+called for their side effects.
+\code{np_list()} returns a character vector of named pipes on the system.
 }
 \description{
 Functions to create, open, and close named pipes on Windows.
