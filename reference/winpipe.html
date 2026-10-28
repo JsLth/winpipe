@@ -171,6 +171,10 @@ discarding them.</p></dd>
     <p><code>named_pipe</code> returns a connection of class <code>"named_pipe"</code>.
 All methods accepting a connection work on named pipes. Use <code>open = "r+b"</code> for
 <code><a href="https://rdrr.io/r/base/readBin.html" class="external-link">readBin</a></code> and <code><a href="https://rdrr.io/r/base/readBin.html" class="external-link">writeBin</a></code>.</p>
+<p><code>is_winpipe()</code> and <code>np_exists()</code> return <code>TRUE</code> or <code>FALSE</code>.
+<code>np_listen()</code> and <code>np_disconnect()</code> return nothing and are
+called for their side effects.
+<code>np_list()</code> returns a character vector of named pipes on the system.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

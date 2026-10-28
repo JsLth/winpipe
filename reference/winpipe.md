@@ -128,6 +128,11 @@ accepting a connection work on named pipes. Use `open = "r+b"` for
 [`readBin`](https://rdrr.io/r/base/readBin.html) and
 [`writeBin`](https://rdrr.io/r/base/readBin.html).
 
+`is_winpipe()` and `np_exists()` return `TRUE` or `FALSE`. `np_listen()`
+and `np_disconnect()` return nothing and are called for their side
+effects. `np_list()` returns a character vector of named pipes on the
+system.
+
 ## Details
 
 Named pipes behave differently depending on whether they are initialized
