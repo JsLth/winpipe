@@ -2,7 +2,7 @@ Package: winpipe
 Title: Interface to Windows Named Pipes
 Version: 0.1.0
 Authors@R: 
-    person("Jonas", "Lieth", , "jonas.lieth@gesis.org", role = c("aut", "cre", "cph"))
+    person("Jonas", "Lieth", , "jslth@outlook.com", role = c("aut", "cre", "cph"))
 Description: Provides support for Windows Named Pipes for inter-process
     communication through the 'Win32' C++ API. Allows to create, connect,
     disconnect, read from, and write to server and client pipes as standard
