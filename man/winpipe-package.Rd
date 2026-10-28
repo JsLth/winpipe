@@ -21,5 +21,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Jonas Lieth \email{jonas.lieth@gesis.org} [copyright holder]
 
+Authors:
+\itemize{
+  \item Jonas Lieth \email{jonas.lieth@gesis.org} [copyright holder]
+}
+
 }
 \keyword{internal}

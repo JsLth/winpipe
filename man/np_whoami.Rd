@@ -16,23 +16,31 @@ The server end of a connected pipe, to query the connected client's token,
 or \code{NULL} (default) to query the token of the R process itself.}
 }
 \value{
-\code{np_whoami()} returns a string of the form \code{"DOMAIN\\user"}.
+\code{np_whoami()} returns a string of the form \code{"DOMAIN\\\\user"}.
 
 \code{np_token_info()} returns a list with:
 
 \itemize{
-\item \code{user}: user name as \code{"DOMAIN\\user"}.
+\item \code{user}: if possible, a user name as \code{"DOMAIN\\\\user"}.
 \item \code{sid}: user SID string.
 \item \code{groups}: a data frame of group names, SIDs, and whether each group
 is enabled.
-\item \code{elevated}: whether the token is elevated (UAC).
-\item \code{integrity}: integrity level (\code{"low"}, \code{"medium"}, \code{"high"}, or
-\code{"system"}).
+\item \code{elevated}: whether the token is elevated, i.e. runs with admin rights.
+\item \code{integrity}: integrity level, i.e., what objects can a client touch? Can be one of: \itemize{
+\item{\code{"low"}: low-permission users, e.g., protected apps or sandboxes}
+\item{\code{"medium"}: standard users}
+\item{\code{"high"}: admin users}
+\item{\code{"system"}: OS services}
+}
 \item \code{token_type}: \code{"primary"} (own process) or \code{"impersonation"}
 (pipe client).
-\item \code{impersonation_level}: for impersonation tokens, one of
-\code{"anonymous"}, \code{"identification"}, \code{"impersonation"}, or \code{"delegation"};
-\code{NA} for primary tokens.
+\item \code{impersonation_level}: level at which the server can impersonate. Can be one of: \itemize{
+\item{\code{"anonymous"}: server cannot obtain any information}
+\item{\code{"identification"}: server can identify the client's SID and groups}
+\item{\code{"impersonation"}: server can act as the client locally}
+\item{\code{"delegation"}: server can act as the client locally and remotely}
+\item{\code{NA}: for primary tokens}
+}
 }
 }
 \description{
