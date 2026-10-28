@@ -8,6 +8,9 @@ Functions to retrieve low-level information about a named pipe.
 
 - `np_peek()` looks at the bytes of a pipe without reading.
 
+- `np_connected()` checks if a client or server is connected to the
+  other side of the pipe.
+
 - `np_sd()` returns the [security
   descriptor](https://jslth.github.io/winpipe/reference/security_descriptor.md).
 
@@ -18,7 +21,9 @@ np_config(con)
 
 np_state(con)
 
-np_peek(con)
+np_peek(con, warn = TRUE)
+
+np_connected(con)
 
 np_sd(con)
 ```
@@ -31,6 +36,16 @@ np_sd(con)
 
   An open `winpipe` as created by
   [`winpipe`](https://jslth.github.io/winpipe/reference/winpipe.md).
+
+- warn:
+
+  `[logical(1)]`
+
+  Whether to warn if a pipe cannot be peeked from. `np_peek()` will run
+  without error even if a pipe can technically not be read from because
+  it is not connected to anything. In this case, it signals a warning
+  and returns 0. Set to `TRUE` if reading from a disconnected pipe is
+  intended.
 
 ## Value
 
@@ -62,6 +77,10 @@ np_sd(con)
 If `np_peek()` cannot read from the pipe, returns the error code as a
 warning.
 
+`np_connected()` returns `TRUE` when `con` is a server and a client is
+connected or when `con` is a client and a server is connected. If the
+other side is not connected, returns `FALSE`.
+
 `np_sd()` returns an object of class
 [`winpipe_sd`](https://jslth.github.io/winpipe/reference/security_descriptor.md).
 
@@ -70,6 +89,10 @@ warning.
 ``` r
 srv <- winpipe("test")
 cli <- winpipe("test")
+
+# client has a server, so np_connected() is TRUE
+np_connected(cli)
+#> [1] TRUE
 
 np_config(srv)
 #> $is_server
@@ -104,6 +127,7 @@ np_state(srv)
 #> [1] "runneradmin"
 #> 
 
+# Peek can track how many bytes are consumed from reading
 np_peek(srv)
 #> [1] 0
 writeLines("hello\nworld", cli)
@@ -116,8 +140,18 @@ np_peek(srv)
 
 np_sd(srv)
 #> <winpipe_sd>
-#> O:BAG:S-1-5-21-3776380004-1005456608-3524014338-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;S-1-5-5-0-764711)
+#> O:BAG:S-1-5-21-3776380004-1005456608-3524014338-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;S-1-5-5-0-866305)
 
 close(srv)
+
+# server closed, so client is serverless
+np_connected(cli)
+#> [1] FALSE
+
+# peeking is still possible, but signals a warning
+np_peek(cli)
+#> Warning: The pipe has been ended. (error 109)
+#> [1] 0
+
 close(cli)
 ```

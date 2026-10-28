@@ -129,6 +129,7 @@ np_sd(pipe)
 - [`np_config()`](https://jslth.github.io/winpipe/reference/info.md)
   [`np_state()`](https://jslth.github.io/winpipe/reference/info.md)
   [`np_peek()`](https://jslth.github.io/winpipe/reference/info.md)
+  [`np_connected()`](https://jslth.github.io/winpipe/reference/info.md)
   [`np_sd()`](https://jslth.github.io/winpipe/reference/info.md) :
   Low-level information about a named pipe
 - [`np_whoami()`](https://jslth.github.io/winpipe/reference/np_whoami.md)

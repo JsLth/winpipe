@@ -15,10 +15,12 @@ be communicated with like so:
 # check if docker is running
 # start docker desktop if not
 np_exists("docker_engine")
-#> [1] TRUE
+#> [1] FALSE
 
 # Connect to docker
 pipe <- winpipe("docker_engine", open = "r+b", server = FALSE)
+#> Error in `open.connection()`:
+#> ! Das System kann die angegebene Datei nicht finden.
 
 # Manually craft a request
 req <- paste(
@@ -31,12 +33,20 @@ req <- paste(
 
 # Send the request
 writeBin(charToRaw(req), pipe)
+#> Error in `writeBin()`:
+#> ! invalid connection
 
 # Read the response
 res <- tryCatch(readBin(pipe, "raw", 65536))
+#> Error in `readBin()`:
+#> ! invalid connection
 
 close(pipe)
+#> Error in `UseMethod()`:
+#> ! no applicable method for 'close' applied to an object of class "function"
 cat(rawToChar(res))
+#> Error:
+#> ! object 'res' not found
 ```
 
 And while this is technically a solution, you have to take care of
@@ -63,7 +73,7 @@ proxy <- np_proxy("docker_engine")
 proxy
 #> <winpipe_proxy>
 #>   winpipe:   \\.\pipe\docker_engine 
-#>   base url:  http://127.0.0.1:29184/ 
+#>   base url:  http://127.0.0.1:9863/ 
 #>   listening: yes
 ```
 
@@ -79,9 +89,14 @@ resp <- request(proxy$base_url) %>%
   req_url_path("/version") %>%
   req_perform() %>%
   resp_body_json()
+#> Error in `req_perform()`:
+#> ! Failed to perform HTTP request.
+#> Caused by error in `curl::curl_fetch_memory()`:
+#> ! Failure when receiving data from the peer [127.0.0.1]:
+#> Recv failure: Connection was reset
 resp$Platform
-#> $Name
-#> [1] "Docker Desktop 4.46.0 (204649)"
+#> Error:
+#> ! object 'resp' not found
 ```
 
 POST and DELETE requests work, too. For example, to download or delete
@@ -95,16 +110,14 @@ pull <- request(proxy$base_url) %>%
   req_method("POST") %>%
   req_perform() %>%
   resp_body_string()
+#> Error in `req_perform()`:
+#> ! Failed to perform HTTP request.
+#> Caused by error in `curl::curl_fetch_memory()`:
+#> ! Could not connect to server [127.0.0.1]:
+#> Failed to connect to 127.0.0.1 port 9863 after 2032 ms: Could not connect to server
 cat(pull)
-#> {"status":"Pulling from library/hello-world","id":"latest"}
-#> {"status":"Pulling fs layer","progressDetail":{},"id":"4f55086f7dd0"}
-#> {"status":"Downloading","progressDetail":{"current":2415,"total":2415},"progress":"[==================================================\u003e]  2.415kB/2.415kB","id":"4f55086f7dd0"}
-#> {"status":"Download complete","progressDetail":{},"id":"4f55086f7dd0"}
-#> {"status":"Extracting","progressDetail":{"current":2415,"total":2415},"progress":"[==================================================\u003e]  2.415kB/2.415kB","id":"4f55086f7dd0"}
-#> {"status":"Extracting","progressDetail":{"current":2415,"total":2415},"progress":"[==================================================\u003e]  2.415kB/2.415kB","id":"4f55086f7dd0"}
-#> {"status":"Pull complete","progressDetail":{},"id":"4f55086f7dd0"}
-#> {"status":"Digest: sha256:11a3eb1597e864c51b3f56733cb2e8a90bf0c284bfc05f9444d81c558bc848aa"}
-#> {"status":"Status: Downloaded newer image for hello-world:latest"}
+#> Error:
+#> ! object 'pull' not found
 ```
 
 ``` r
@@ -113,14 +126,24 @@ img <- request(proxy$base_url) %>%
   req_url_path("/images/json") %>%
   req_perform() %>%
   resp_body_json(simplifyVector = TRUE)
+#> Error in `req_perform()`:
+#> ! Failed to perform HTTP request.
+#> Caused by error in `curl::curl_fetch_memory()`:
+#> ! Could not connect to server [127.0.0.1]:
+#> Failed to connect to 127.0.0.1 port 9863 after 2055 ms: Could not connect to server
 id <- img$Id
+#> Error:
+#> ! object 'img' not found
 
 del <- request(proxy$base_url) %>%
   req_url_path("/images", id) %>%
   req_method("DELETE") %>%
   req_perform()
+#> Error:
+#> ! object 'id' not found
 del$status_code
-#> [1] 200
+#> Error:
+#> ! object 'del' not found
 ```
 
 Since proxies are background R processes, you have to handle them like
@@ -129,11 +152,11 @@ one. To close a named pipe, kill the process.
 ``` r
 
 proxy$proc
-#> PROCESS 'Rterm', running, pid 25692.
+#> PROCESS 'Rterm', finished.
 ```
 
 ``` r
 
 proxy$proc$kill()
-#> [1] TRUE
+#> [1] FALSE
 ```

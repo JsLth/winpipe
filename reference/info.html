@@ -10,6 +10,7 @@
 np_config() returns the pipe configuration.
 np_state() returns the current clients.
 np_peek() looks at the bytes of a pipe without reading.
+np_connected() checks if a client or server is connected to the other side of the pipe.
 np_sd() returns the security descriptor.
 
 "><meta property="og:description" content="Functions to retrieve low-level information about a named pipe.
@@ -17,6 +18,7 @@ np_sd() returns the security descriptor.
 np_config() returns the pipe configuration.
 np_state() returns the current clients.
 np_peek() looks at the bytes of a pipe without reading.
+np_connected() checks if a client or server is connected to the other side of the pipe.
 np_sd() returns the security descriptor.
 
 "><meta property="og:image" content="https://jslth.github.io/winpipe/logo.png"></head><body>
@@ -61,6 +63,7 @@ np_sd() returns the security descriptor.
 <ul><li><p><code>np_config()</code> returns the pipe configuration.</p></li>
 <li><p><code>np_state()</code> returns the current clients.</p></li>
 <li><p><code>np_peek()</code> looks at the bytes of a pipe without reading.</p></li>
+<li><p><code>np_connected()</code> checks if a client or server is connected to the other side of the pipe.</p></li>
 <li><p><code>np_sd()</code> returns the <a href="security_descriptor.html">security descriptor</a>.</p></li>
 </ul></div>
 
@@ -70,7 +73,9 @@ np_sd() returns the security descriptor.
 <span></span>
 <span><span class="fu">np_state</span><span class="op">(</span><span class="va">con</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">np_peek</span><span class="op">(</span><span class="va">con</span><span class="op">)</span></span>
+<span><span class="fu">np_peek</span><span class="op">(</span><span class="va">con</span>, warn <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">np_connected</span><span class="op">(</span><span class="va">con</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">np_sd</span><span class="op">(</span><span class="va">con</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -82,6 +87,15 @@ np_sd() returns the security descriptor.
 <dl><dt id="arg-con">con<a class="anchor" aria-label="anchor" href="#arg-con"></a></dt>
 <dd><p><code>[winpipe]</code>.</p>
 <p>An open <code>winpipe</code> as created by <code><a href="winpipe.html">winpipe</a></code>.</p></dd>
+
+
+<dt id="arg-warn">warn<a class="anchor" aria-label="anchor" href="#arg-warn"></a></dt>
+<dd><p><code>[logical(1)]</code></p>
+<p>Whether to warn if a pipe cannot be peeked from. <code>np_peek()</code> will run
+without error even if a pipe can technically not be read from because
+it is not connected to anything. In this case, it signals a warning and
+returns 0. Set to <code>TRUE</code> if reading from a disconnected pipe is
+intended.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -96,6 +110,9 @@ np_sd() returns the security descriptor.
 <li><p><code>current_instances</code>: Number of instances related to a pipe.</p></li>
 <li><p><code>username</code>: If <code>con</code> is a server, reports the username of the current client, if any. If <code>con</code> is a client, <code>NA</code>.</p></li>
 </ul><p><code>np_peek()</code> returns the number of bytes available to read from the pipe. If <code>np_peek()</code> cannot read from the pipe, returns the error code as a warning.</p>
+<p><code>np_connected()</code> returns <code>TRUE</code> when <code>con</code> is a server and a
+client is connected or when <code>con</code> is a client and a server is connected.
+If the other side is not connected, returns <code>FALSE</code>.</p>
 <p><code>np_sd()</code> returns an object of class <code><a href="security_descriptor.html">winpipe_sd</a></code>.</p>
     </div>
 
@@ -103,6 +120,10 @@ np_sd() returns the security descriptor.
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">srv</span> <span class="op">&lt;-</span> <span class="fu"><a href="winpipe.html">winpipe</a></span><span class="op">(</span><span class="st">"test"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cli</span> <span class="op">&lt;-</span> <span class="fu"><a href="winpipe.html">winpipe</a></span><span class="op">(</span><span class="st">"test"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># client has a server, so np_connected() is TRUE</span></span></span>
+<span class="r-in"><span><span class="fu">np_connected</span><span class="op">(</span><span class="va">cli</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">np_config</span><span class="op">(</span><span class="va">srv</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $is_server</span>
@@ -137,6 +158,7 @@ np_sd() returns the security descriptor.
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "runneradmin"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Peek can track how many bytes are consumed from reading</span></span></span>
 <span class="r-in"><span><span class="fu">np_peek</span><span class="op">(</span><span class="va">srv</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="st">"hello\nworld"</span>, <span class="va">cli</span><span class="op">)</span></span></span>
@@ -149,9 +171,19 @@ np_sd() returns the security descriptor.
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">np_sd</span><span class="op">(</span><span class="va">srv</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;winpipe_sd&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> O:BAG:S-1-5-21-3776380004-1005456608-3524014338-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;S-1-5-5-0-764711)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> O:BAG:S-1-5-21-3776380004-1005456608-3524014338-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;S-1-5-5-0-866305)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">close</a></span><span class="op">(</span><span class="va">srv</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># server closed, so client is serverless</span></span></span>
+<span class="r-in"><span><span class="fu">np_connected</span><span class="op">(</span><span class="va">cli</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># peeking is still possible, but signals a warning</span></span></span>
+<span class="r-in"><span><span class="fu">np_peek</span><span class="op">(</span><span class="va">cli</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The pipe has been ended. (error 109)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">close</a></span><span class="op">(</span><span class="va">cli</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
