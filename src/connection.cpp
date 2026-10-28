@@ -59,17 +59,18 @@ DWORD seconds_to_ms(double s) {
 std::string GetErrorMessage(DWORD err) {
     LPWSTR buf = nullptr;
 
-    DWORD size = FormatMessageW(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER |
-        FORMAT_MESSAGE_FROM_SYSTEM |
-        FORMAT_MESSAGE_IGNORE_INSERTS,
-        nullptr,
-        err,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPWSTR)&buf,
-        0,
-        nullptr
-    );
+    // Prefer English so messages are stable across system locales
+    DWORD size = 0;
+    for (WORD lang : {MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
+                      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)}) {
+        size = FormatMessageW(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER |
+            FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+            nullptr, err, lang, (LPWSTR)&buf, 0, nullptr
+        );
+        if (size != 0) break;
+    }
 
     if (size == 0 || !buf) return "Unknown error";
 
@@ -80,7 +81,8 @@ std::string GetErrorMessage(DWORD err) {
     while (!msg.empty() && (msg.back() == '\n' || msg.back() == '\r')) {
         msg.pop_back();
     }
-    return msg;
+    // Code keeps messages identifiable on non-English systems
+    return msg + " (error " + std::to_string(err) + ")";
 }
 
 [[noreturn]] void r_errorf(const char* fmt, ...) {
@@ -793,6 +795,7 @@ cpp11::list cpp_np_conn_peek(SEXP con) {
     using namespace cpp11::literals;
 
     return cpp11::writable::list({
+        "connected"_nm = connected,
         "available"_nm = available,
         "error_code"_nm = (connected || buffered > 0)
             ? cpp11::r_string(NA_STRING)

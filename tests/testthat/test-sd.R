@@ -212,7 +212,7 @@ test_that("sd_build rejects non-list input", {
 test_that("sd_build rejects wrong inputs", {
   sd <- sd_create()
   sd <- sd_add(sd, make_ace(rights = "GR", account = "unknown"))
-  expect_error(sd_build(sd), "security ID structure is invalid")
+  expect_error(sd_build(sd), "error 1337[)]")
 })
 
 # -----------------------------------------------------------------------------

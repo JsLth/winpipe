@@ -131,5 +131,5 @@ test_that("np_relay reports pipe errors and keeps going", {
   # The relay reports the error through message(), which signals it as a
   # condition; catching it here ends the relay.
   err <- tryCatch(limited_relay(1)("relay-missing", port), error = identity)
-  expect_match(conditionMessage(err), "cannot find")
+  expect_match(conditionMessage(err), "error 2[)]")
 })

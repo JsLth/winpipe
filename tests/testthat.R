@@ -6,6 +6,17 @@
 # * https://r-pkgs.org/testing-design.html#sec-tests-files-overview
 # * https://testthat.r-lib.org/articles/special-files.html
 
+old_lang <- Sys.getenv("LANGUAGE", unset = NA)
+old_locale <- Sys.getlocale("LC_ALL")
+
+on.exit({
+  Sys.setenv(LANGUAGE = old_lang)
+  Sys.setlocale("LC_ALL", old_locale)
+}, add = TRUE)
+
+Sys.setlocale("LC_ALL", "C")
+Sys.setenv(LANGUAGE = "en")
+
 library(testthat)
 library(winpipe)
 

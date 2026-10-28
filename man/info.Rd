@@ -4,6 +4,7 @@
 \alias{np_config}
 \alias{np_state}
 \alias{np_peek}
+\alias{np_connected}
 \alias{np_sd}
 \title{Low-level information about a named pipe}
 \usage{
@@ -11,7 +12,9 @@ np_config(con)
 
 np_state(con)
 
-np_peek(con)
+np_peek(con, warn = TRUE)
+
+np_connected(con)
 
 np_sd(con)
 }
@@ -19,6 +22,14 @@ np_sd(con)
 \item{con}{\code{[winpipe]}.
 
 An open \code{winpipe} as created by \code{\link{winpipe}}.}
+
+\item{warn}{\code{[logical(1)]}
+
+Whether to warn if a pipe cannot be peeked from. \code{np_peek()} will run
+without error even if a pipe can technically not be read from because
+it is not connected to anything. In this case, it signals a warning and
+returns 0. Set to \code{TRUE} if reading from a disconnected pipe is
+intended.}
 }
 \value{
 \code{np_config()} returns:
@@ -40,6 +51,10 @@ An open \code{winpipe} as created by \code{\link{winpipe}}.}
 
 \code{np_peek()} returns the number of bytes available to read from the pipe. If \code{np_peek()} cannot read from the pipe, returns the error code as a warning.
 
+\code{np_connected()} returns \code{TRUE} when \code{con} is a server and a
+client is connected or when \code{con} is a client and a server is connected.
+If the other side is not connected, returns \code{FALSE}.
+
 \code{np_sd()} returns an object of class \code{\link[=security_descriptor]{winpipe_sd}}.
 }
 \description{
@@ -49,6 +64,7 @@ Functions to retrieve low-level information about a named pipe.
 \item{\code{np_config()} returns the pipe configuration.}
 \item{\code{np_state()} returns the current clients.}
 \item{\code{np_peek()} looks at the bytes of a pipe without reading.}
+\item{\code{np_connected()} checks if a client or server is connected to the other side of the pipe.}
 \item{\code{np_sd()} returns the \link[=security_descriptor]{security descriptor}.}
 }
 }
@@ -56,9 +72,13 @@ Functions to retrieve low-level information about a named pipe.
 srv <- winpipe("test")
 cli <- winpipe("test")
 
+# client has a server, so np_connected() is TRUE
+np_connected(cli)
+
 np_config(srv)
 np_state(srv)
 
+# Peek can track how many bytes are consumed from reading
 np_peek(srv)
 writeLines("hello\nworld", cli)
 np_peek(srv)
@@ -68,5 +88,12 @@ np_peek(srv)
 np_sd(srv)
 
 close(srv)
+
+# server closed, so client is serverless
+np_connected(cli)
+
+# peeking is still possible, but signals a warning
+np_peek(cli)
+
 close(cli)
 }

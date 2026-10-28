@@ -169,8 +169,11 @@ test_that("clients can be disconnected", {
   on.exit(close(srv), add = TRUE)
   on.exit(close(cli), add = TRUE)
   expect_false(is.na(np_state(srv)$username))
+  expect_true(np_connected(cli))
+  expect_true(np_connected(srv))
   np_disconnect(srv)
   expect_true(is.na(np_state(srv)$username))
+  expect_false(np_connected(cli))
 })
 
 
@@ -186,7 +189,7 @@ test_that("timeouts can be set post-hoc", {
 test_that("peeking is liberal", {
   srv <- winpipe("test")
   on.exit(close(srv), add = TRUE)
-  expect_warning(np_peek(srv), "pipe state is invalid")
+  expect_warning(np_peek(srv), "error 230[)]")
   expect_equal(suppressWarnings(np_peek(srv)), 0)
 })
 

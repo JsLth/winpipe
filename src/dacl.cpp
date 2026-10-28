@@ -10,16 +10,20 @@ namespace {
 
 std::string error_message(DWORD err) {
     char* buf = NULL;
-    DWORD n = FormatMessageA(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-            FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        reinterpret_cast<LPSTR>(&buf), 0, NULL);
+    DWORD n = 0;
+    for (WORD lang : {MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
+                      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)}) {
+        n = FormatMessageA(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, err, lang, reinterpret_cast<LPSTR>(&buf), 0, NULL);
+        if (n) break;
+    }
     std::string msg = n ? std::string(buf, n) : "Windows error " + std::to_string(err);
     if (buf) LocalFree(buf);
     while (!msg.empty() && (msg.back() == '\n' || msg.back() == '\r' || msg.back() == ' '))
         msg.pop_back();
-    return msg;
+    return msg + " (error " + std::to_string(err) + ")";
 }
 
 std::wstring to_wide(const std::string& s) {

@@ -23,7 +23,9 @@ test_that("non-pipe and closed connections are rejected", {
 
 
 test_that("invalid pipe names are rejected", {
-  expect_error(winpipe:::cpp_np_conn_exists(rawToChar(as.raw(0xff))))
+  bad <- rawToChar(as.raw(0xff))
+  Encoding(bad) <- "UTF-8"
+  expect_error(winpipe:::cpp_np_conn_exists(bad))
 })
 
 
@@ -47,8 +49,8 @@ test_that("server creation failures are reported", {
 
 
 test_that("clients cannot open pipes that do not exist", {
-  expect_error(winpipe("test", server = FALSE), "cannot find")
-  expect_error(winpipe("test", server = FALSE, blocking = TRUE), "cannot find")
+  expect_error(winpipe("test", server = FALSE), "error 2[)]")
+  expect_error(winpipe("test", server = FALSE, blocking = TRUE), "error 2[)]")
 })
 
 
@@ -78,7 +80,7 @@ test_that("clients time out waiting for a free instance", {
     winpipe("test", server = FALSE, blocking = TRUE, timeout = 0.3),
     "Timed out .* free pipe instance"
   )
-  expect_error(winpipe("test", server = FALSE, blocking = FALSE), "busy|All pipe")
+  expect_error(winpipe("test", server = FALSE, blocking = FALSE), "error 231[)]")
 })
 
 
