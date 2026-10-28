@@ -20,3 +20,7 @@ Useful links:
 ## Author
 
 **Maintainer**: Jonas Lieth <jonas.lieth@gesis.org> \[copyright holder\]
+
+Authors:
+
+- Jonas Lieth <jonas.lieth@gesis.org> \[copyright holder\]

@@ -74,20 +74,26 @@ or <code>NULL</code> (default) to query the token of the R process itself.</p></
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>np_whoami()</code> returns a string of the form <code>"DOMAIN\user"</code>.</p>
+    <p><code>np_whoami()</code> returns a string of the form <code>"DOMAIN\\user"</code>.</p>
 <p><code>np_token_info()</code> returns a list with:</p>
-<ul><li><p><code>user</code>: user name as <code>"DOMAIN\user"</code>.</p></li>
+<ul><li><p><code>user</code>: if possible, a user name as <code>"DOMAIN\\user"</code>.</p></li>
 <li><p><code>sid</code>: user SID string.</p></li>
 <li><p><code>groups</code>: a data frame of group names, SIDs, and whether each group
 is enabled.</p></li>
-<li><p><code>elevated</code>: whether the token is elevated (UAC).</p></li>
-<li><p><code>integrity</code>: integrity level (<code>"low"</code>, <code>"medium"</code>, <code>"high"</code>, or
-<code>"system"</code>).</p></li>
+<li><p><code>elevated</code>: whether the token is elevated, i.e. runs with admin rights.</p></li>
+<li><p><code>integrity</code>: integrity level, i.e., what objects can a client touch? Can be one of:</p><ul><li><p><code>"low"</code>: low-permission users, e.g., protected apps or sandboxes</p></li>
+<li><p><code>"medium"</code>: standard users</p></li>
+<li><p><code>"high"</code>: admin users</p></li>
+<li><p><code>"system"</code>: OS services</p></li>
+</ul></li>
 <li><p><code>token_type</code>: <code>"primary"</code> (own process) or <code>"impersonation"</code>
 (pipe client).</p></li>
-<li><p><code>impersonation_level</code>: for impersonation tokens, one of
-<code>"anonymous"</code>, <code>"identification"</code>, <code>"impersonation"</code>, or <code>"delegation"</code>;
-<code>NA</code> for primary tokens.</p></li>
+<li><p><code>impersonation_level</code>: level at which the server can impersonate. Can be one of:</p><ul><li><p><code>"anonymous"</code>: server cannot obtain any information</p></li>
+<li><p><code>"identification"</code>: server can identify the client's SID and groups</p></li>
+<li><p><code>"impersonation"</code>: server can act as the client locally</p></li>
+<li><p><code>"delegation"</code>: server can act as the client locally and remotely</p></li>
+<li><p><code>NA</code>: for primary tokens</p></li>
+</ul></li>
 </ul></div>
 
     <div class="section level2">

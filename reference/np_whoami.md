@@ -25,28 +25,46 @@ np_token_info(con = NULL)
 
 ## Value
 
-`np_whoami()` returns a string of the form `"DOMAIN\user"`.
+`np_whoami()` returns a string of the form `"DOMAIN\\user"`.
 
 `np_token_info()` returns a list with:
 
-- `user`: user name as `"DOMAIN\user"`.
+- `user`: if possible, a user name as `"DOMAIN\\user"`.
 
 - `sid`: user SID string.
 
 - `groups`: a data frame of group names, SIDs, and whether each group is
   enabled.
 
-- `elevated`: whether the token is elevated (UAC).
+- `elevated`: whether the token is elevated, i.e. runs with admin
+  rights.
 
-- `integrity`: integrity level (`"low"`, `"medium"`, `"high"`, or
-  `"system"`).
+- `integrity`: integrity level, i.e., what objects can a client touch?
+  Can be one of:
+
+  - `"low"`: low-permission users, e.g., protected apps or sandboxes
+
+  - `"medium"`: standard users
+
+  - `"high"`: admin users
+
+  - `"system"`: OS services
 
 - `token_type`: `"primary"` (own process) or `"impersonation"` (pipe
   client).
 
-- `impersonation_level`: for impersonation tokens, one of `"anonymous"`,
-  `"identification"`, `"impersonation"`, or `"delegation"`; `NA` for
-  primary tokens.
+- `impersonation_level`: level at which the server can impersonate. Can
+  be one of:
+
+  - `"anonymous"`: server cannot obtain any information
+
+  - `"identification"`: server can identify the client's SID and groups
+
+  - `"impersonation"`: server can act as the client locally
+
+  - `"delegation"`: server can act as the client locally and remotely
+
+  - `NA`: for primary tokens
 
 ## Examples
 
