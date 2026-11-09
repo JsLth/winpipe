@@ -19,11 +19,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Jonas Lieth \email{jonas.lieth@gesis.org} [copyright holder]
+\strong{Maintainer}: Jonas Lieth \email{jslth@outlook.com} [copyright holder]
 
 Authors:
 \itemize{
-  \item Jonas Lieth \email{jonas.lieth@gesis.org} [copyright holder]
+  \item Jonas Lieth \email{jslth@outlook.com} [copyright holder]
 }
 
 }

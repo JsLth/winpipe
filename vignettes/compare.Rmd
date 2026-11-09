@@ -1,0 +1,215 @@
+---
+title: "`fifo()` vs. processx vs. winpipe"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{fifo() vs. processx vs. winpipe}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+is_win <- .Platform$OS.type == "windows"
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = is_win && requireNamespace("processx", quietly = TRUE)
+)
+```
+
+R can talk to Windows named pipes in three ways: base R's `fifo()`, `processx::conn_create_fifo()` and `processx::conn_connect_fifo()`, and winpipe. They behave quite differently on Windows. This vignette shows what each can and cannot do, using a small external server written in PowerShell as the peer.
+
+```{r setup}
+library(winpipe)
+library(processx)
+```
+
+## A test peer
+
+Named pipes live in the `\\.\pipe\` namespace. Every pipe on the machine is listed by `list.files("//./pipe/")`, but the ones that ship with Windows are access controlled, so they make poor examples. Instead, I create a helper function `ps_server()` that starts a tiny server using the PowerShell. Open the details below to see how it works.
+
+<details><summary>Code for the named pipe helper</summary>
+```{r ps-helper}
+ps_script <- tempfile(fileext = ".ps1")
+writeLines('
+param($name, $mode, $msg, $log)
+$dir = if ($mode -eq "out8" -or $mode -eq "out16") { "Out" }
+       elseif ($mode -eq "in") { "In" } else { "InOut" }
+$s = New-Object System.IO.Pipes.NamedPipeServerStream($name, [System.IO.Pipes.PipeDirection]::$dir)
+$s.WaitForConnection()
+if ($mode -eq "out8") {
+  $w = New-Object System.IO.StreamWriter($s)
+  $w.WriteLine($msg); $w.Flush()
+} elseif ($mode -eq "out16") {
+  $enc = New-Object System.Text.UnicodeEncoding($false, $false)
+  $w = New-Object System.IO.StreamWriter($s, $enc)
+  $w.WriteLine($msg); $w.Flush()
+} elseif ($mode -eq "echo") {
+  $r = New-Object System.IO.StreamReader($s)
+  $w = New-Object System.IO.StreamWriter($s)
+  $line = $r.ReadLine()
+  # The client may already be gone, e.g., if it failed to write
+  try { $w.WriteLine("echo: $line"); $w.Flush() } catch {}
+} else {
+  $r = New-Object System.IO.StreamReader($s)
+  $r.ReadLine() | Out-File -Encoding ascii $log
+}
+Start-Sleep -Milliseconds 1000
+$s.Dispose()
+', ps_script)
+
+ps_server <- function(name, mode, msg = "", log = "") {
+  system2(
+    "powershell",
+    c("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", shQuote(ps_script),
+      name, mode, shQuote(msg), shQuote(log)),
+    wait = FALSE
+  )
+  # Give the server time to create the pipe
+  Sys.sleep(1.5)
+}
+```
+</details>
+
+`ps_server()` starts a server in the background. Its `mode` decides what it does once a client connects: send a line as UTF-8 (`"out8"`) or UTF-16 (`"out16"`), read a line (`"in"`), or echo a line back (`"echo"`).
+
+## `fifo()`
+
+On Unix, `fifo()` opens a FIFO that you create with `mkfifo`. On Windows, R implements it with Win32 named pipes, but with different semantics:
+
+* Opening for reading (`"r"`) connects to an existing pipe as a client.
+* Opening for writing (`"w"`) *creates* the pipe, i.e., R becomes the server. It cannot connect to a pipe that already exists.
+* Data is read and written as UTF-16, not as bytes.
+
+The last point is easy to miss. If the peer sends ordinary UTF-8 or ASCII text, `readLines()` returns nothing:
+
+```{r fifo-utf8}
+ps_server("demo-fifo-utf8", "out8", "hello from powershell")
+
+con <- fifo("\\\\.\\pipe\\demo-fifo-utf8", "r", blocking = FALSE)
+for (i in 1:10) {
+  res <- readLines(con)
+  if (length(res)) break
+  Sys.sleep(0.2)
+}
+res
+close(con)
+```
+
+The connection opened without error, the server saw the client, but the bytes were decoded as wide characters and discarded. If the peer happens to send UTF-16, the text arrives:
+
+```{r fifo-utf16}
+ps_server("demo-fifo-utf16", "out16", "hello from powershell")
+
+con <- fifo("\\\\.\\pipe\\demo-fifo-utf16", "r", blocking = FALSE)
+for (i in 1:10) {
+  res <- readLines(con)
+  if (length(res)) break
+  Sys.sleep(0.2)
+}
+res
+close(con)
+```
+
+Because `"w"` creates the pipe, `fifo()` also cannot write to an existing server. Opening in `"r+"` mode connects, but writing fails:
+
+```{r fifo-write}
+ps_server("demo-fifo-echo", "echo")
+
+con <- fifo("\\\\.\\pipe\\demo-fifo-echo", "r+", blocking = FALSE)
+try(writeLines("hello", con))
+close(con)
+```
+
+So `fifo()` can be used between two R processes that both expect UTF-16, but not to talk to an arbitrary program. A request/response protocol such as HTTP is not possible.
+
+## processx
+
+processx provides its own connection type that works on both Unix and Windows. The reading end creates a pipe with `conn_create_fifo()`, and a writer attaches to it with `conn_connect_fifo()`:
+
+```{r px-pair}
+reader <- conn_create_fifo()
+writer <- conn_connect_fifo(conn_file_name(reader), write = TRUE)
+
+conn_write(writer, "hello\nthere\n")
+poll(list(reader), 1000)
+conn_read_lines(reader, 1)
+
+close(writer)
+close(reader)
+```
+
+It also connects to pipes created by other programs. Unlike `fifo()`, it reads bytes, so UTF-8 text from our PowerShell server arrives intact:
+
+```{r px-external}
+ps_server("demo-px", "out8", "hello from powershell")
+
+con <- conn_connect_fifo("\\\\?\\pipe\\demo-px", read = TRUE)
+poll(list(con), 2000)
+conn_read_lines(con, 1)
+close(con)
+```
+
+The limits are in the design:
+
+* A connection is one-directional. A pipe created by `conn_create_fifo()` can only be read from, and a connection made with `write = TRUE` can only write. A request/response exchange over a single pipe does not fit.
+* The connections are `processx_connection` objects, not R connections. `readLines()`, `read.csv()`, `writeBin()` etc. do not work on them.
+* There is no way to set a security descriptor.
+
+## winpipe
+
+winpipe exposes a Win32 named pipe as a native R connection. A client connects with `server = FALSE`, can read and write on the same pipe, and every R function that accepts a connection works. The echo server demonstrates the request/response exchange:
+
+```{r wp-echo}
+ps_server("demo-wp-echo", "echo")
+
+con <- winpipe("demo-wp-echo", open = "r+", server = FALSE)
+writeLines("hello", con)
+Sys.sleep(0.5)
+readLines(con)
+close(con)
+```
+
+winpipe also reads UTF-8 from external servers, like processx:
+
+```{r wp-out8}
+ps_server("demo-wp-out8", "out8", "hello from powershell")
+
+con <- winpipe("demo-wp-out8", open = "r", server = FALSE)
+Sys.sleep(0.5)
+readLines(con)
+close(con)
+```
+
+Opening the client with `"r"` or `"w"` requests only that access, so it can also connect to one-way pipes such as the processx reader:
+
+```{r wp-to-px}
+reader <- conn_create_fifo()
+name <- sub("^\\\\\\\\[.?]\\\\pipe\\\\", "", conn_file_name(reader))
+
+client <- winpipe(name, open = "w", server = FALSE)
+writeLines("hello from winpipe", client)
+
+poll(list(reader), 2000)
+conn_read_lines(reader, 1)
+
+close(client)
+close(reader)
+```
+
+winpipe can also be the server, accept clients without blocking the R session, and take a security descriptor. See `vignette("basics")`.
+
+## Summary
+
+| | `fifo()` | processx | winpipe |
+|:---|:---|:---|:---|
+| Connection type | R connection | `processx_connection` | R connection |
+| Platforms | Unix and Windows | Unix and Windows | Windows only |
+| Connect to existing pipe | read only | yes (one direction) | yes |
+| Create a pipe (server) | write mode only | reading end | yes |
+| Bidirectional | no | no | yes |
+| Text encoding on Windows | UTF-16 | bytes | bytes |
+| Talk to non-R programs | not reliably | one direction | yes |
+| Non-blocking | yes | yes, via `poll()` | yes |
+| Access control (SDDL) | no | no | yes |
+
+The behaviour of `fifo()` and processx described above was observed on Windows with R 4.6 and may differ on other versions.

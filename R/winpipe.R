@@ -62,7 +62,8 @@
 #' \code{is_winpipe()} and \code{np_exists()} return \code{TRUE} or \code{FALSE}.
 #' \code{np_listen()} and \code{np_disconnect()} return nothing and are
 #' called for their side effects.
-#' \code{np_list()} returns a character vector of named pipes on the system.
+#' \code{np_list()} returns a character vector of named pipes on the system. It
+#' is equivalent to list.files() on a named pipe.
 #' 
 #' @details
 #' Named pipes behave differently depending on whether they are initialized as a

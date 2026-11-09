@@ -1,0 +1,25 @@
+---
+title: "A basic example"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{A basic example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+R has native support for named pipes on Unix through the `fifo()` function. `fifo()` can connect to existing pipes and read from and write to them. 
+
+```{r fifo, eval=FALSE}
+
+```
+
+```{r setup}
+library(winpipe)
+```

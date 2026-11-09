@@ -342,12 +342,22 @@ HANDLE create_server_handle(const std::wstring& name, const std::wstring& sddl,
 
 // When every instance is busy, wait for one to free up in short slices so that
 // R interrupts are honoured and the overall timeout is respected.
-HANDLE open_client_handle(const std::wstring& name, DWORD timeout_ms, DWORD* err,
-                          bool* was_interrupted) {
+// The requested access must match the pipe's direction: a one-way pipe created
+// by another program rejects a client asking for more than it grants.
+DWORD client_access(const char* mode) {
+    const bool plus = std::strchr(mode, '+') != NULL;
+    if (plus) return GENERIC_READ | GENERIC_WRITE;
+    if (mode[0] == 'r') return GENERIC_READ;
+    if (mode[0] == 'w' || mode[0] == 'a') return GENERIC_WRITE;
+    return GENERIC_READ | GENERIC_WRITE;
+}
+
+HANDLE open_client_handle(const std::wstring& name, DWORD access, DWORD timeout_ms,
+                          DWORD* err, bool* was_interrupted) {
     *was_interrupted = false;
     const ULONGLONG start = GetTickCount64();
     for (;;) {
-        HANDLE h = CreateFileW(name.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL,
+        HANDLE h = CreateFileW(name.c_str(), access, 0, NULL,
                                OPEN_EXISTING,
                                FILE_FLAG_OVERLAPPED | SECURITY_SQOS_PRESENT |
                                    SECURITY_IDENTIFICATION,
@@ -418,7 +428,8 @@ Rboolean np_con_open(Rconnection con) {
         bool was_interrupted = false;
         // A non-blocking open must not wait for a free instance
         DWORD wait_ms = con->blocking ? s->timeout_ms : 0;
-        s->h = open_client_handle(s->name, wait_ms, &err, &was_interrupted);
+        s->h = open_client_handle(s->name, client_access(con->mode), wait_ms, &err,
+                                  &was_interrupted);
         if (s->h == INVALID_HANDLE_VALUE) {
             release_handles(s);
             if (was_interrupted) r_errorf("Interrupted while waiting for a free pipe instance");

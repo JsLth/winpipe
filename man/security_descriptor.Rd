@@ -81,9 +81,9 @@ the ACL.
 }
 }
 \examples{
-x <- sd_create(owner = "admins") |>
-  sd_add(ace(rights = "generic all", account = "local system")) |>
-  sd_add(ace(rights = c("GR", "GW"), account = "authenticated users"))
+x <- sd_create(owner = "admins")
+x <- sd_add(ace(rights = "generic all", account = "local system"))
+x <- sd_add(ace(rights = c("GR", "GW"), account = "authenticated users"))
 x
 sd_build(x)
 

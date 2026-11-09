@@ -113,12 +113,23 @@ input).
 pipe <- winpipe("sd-pipe", sddl = sd)
 np_sd(pipe)
 #> <winpipe_sd>
-#> O:S-1-5-21-1492369709-893483088-3947136618-1001G:S-1-5-21-1492369709-893483088-3947136618-1001D:(D;;FA;;;WD)(A;;FA;;;BA)(A;;FA;;;SY)
+#> O:S-1-5-21-2474231639-1219136063-2303250501-161860G:DUD:(D;;FA;;;WD)(A;;FA;;;BA)(A;;FA;;;SY)
 ```
 
 ## Related work
 
+- `fifo()` can connect to named pipes on Windows but is not well
+  supported
 - [`processx`](https://processx.r-lib.org/) can emulate named pipes as
   child processes
 - [`httppipe`](https://github.com/richfitz/httppipe) uses `reticulate`
   to communicate with named pipes through Python
+
+See `vignette("compare")` for a difference between `fifo()`,
+`{processx}`, and `{winpipe}`.
+
+## AI Use Statement
+
+Parts of this package’s code were drafted with assistance from Claude
+Sonnet 5.5. All code was reviewed, tested, and revised by the authors,
+who take full responsibility for its content.

@@ -24,6 +24,7 @@ Suggests:
     pkgload,
     jsonlite,
     callr,
+    processx,
     httpuv,
     httr2
 Config/testthat/edition: 3

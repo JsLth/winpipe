@@ -95,7 +95,8 @@ All methods accepting a connection work on named pipes. Use \code{open = "r+b"} 
 \code{is_winpipe()} and \code{np_exists()} return \code{TRUE} or \code{FALSE}.
 \code{np_listen()} and \code{np_disconnect()} return nothing and are
 called for their side effects.
-\code{np_list()} returns a character vector of named pipes on the system.
+\code{np_list()} returns a character vector of named pipes on the system. It
+is equivalent to list.files() on a named pipe.
 }
 \description{
 Functions to create, open, and close named pipes on Windows.
