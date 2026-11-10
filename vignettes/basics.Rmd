@@ -1,8 +1,8 @@
 ---
-title: "A basic example"
+title: "Basics of winpipes"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{A basic example}
+  %\VignetteIndexEntry{Basics of winpipes}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -154,7 +154,7 @@ Until a client connects, the server will keep waiting and blocking.
 ```{r block-waiting}
 srv <- start_server()
 while (!np_exists("winpipe-block")) Sys.sleep(0.1)
-srv$read_error()
+cat(srv$read_error())
 ```
 
 When a non-blocking client connects, it will return immediately and return nothing because the server did not have the time to respond.
@@ -202,8 +202,6 @@ By default, the session is blocked for 60 seconds (`getOption("timeout")`), but 
 
 ```{r block-timeout, error=TRUE}
 srv <- winpipe("winpipe-block", server = TRUE, blocking = TRUE, timeout = 1)
-
-close(srv)
 ```
 
 The timeout can be controlled after pipe creation.
@@ -223,7 +221,7 @@ srv <- start_server()
 while (!np_exists("winpipe-block")) Sys.sleep(0.1)
 srv$interrupt()
 Sys.sleep(0.5)
-srv$read_error()
+cat(srv$read_error())
 ```
 
 A non-blocking winpipe can be made blocking by using `np_listen()`:
@@ -266,12 +264,12 @@ Second, it opens possibilities to handle payloads based on their size. In this e
 ```{r peek-maximum}
 writeLines("here is a really really really big payload")
 if (np_peek(srv) > 20) {
-  writeLines("payload is too big")
+  writeLines("payload is too big", srv)
+  close(srv)
 }
 
 readLines(cli)
 
-close(srv)
 close(cli)
 ```
 

@@ -19,6 +19,8 @@ navbar:
     - text: Vignettes
       icon: fa-book
       menu:
+        - text: "Basics of winpipes"
+          href: articles/basics.html
         - text: "HTTP over named pipes"
           href: articles/http.html
         - text: "`fifo()` vs. processx vs. winpipe"
