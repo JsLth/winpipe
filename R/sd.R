@@ -55,11 +55,11 @@
 #' grants nobody access. See `[ace()]`.
 #'
 #' @examples
-#' x <- sd_create(owner = "admins")
-#' x <- sd_add(ace(rights = "generic all", account = "local system"))
-#' x <- sd_add(ace(rights = c("GR", "GW"), account = "authenticated users"))
-#' x
-#' sd_build(x)
+#' sd <- sd_create(owner = "admins")
+#' sd <- sd_add(sd, ace(rights = "generic all", account = "local system"))
+#' sd <- sd_add(sd, ace(rights = c("GR", "GW"), account = "authenticated users"))
+#' sd
+#' sd_build(sd)
 #'
 #' identical(sd_parse(sd_build(sd_default())), sd_default())
 #' @name security_descriptor
