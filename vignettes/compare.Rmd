@@ -2,7 +2,7 @@
 title: "`fifo()` vs. processx vs. winpipe"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{fifo() vs. processx vs. winpipe}
+  %\VignetteIndexEntry{`fifo()` vs. processx vs. winpipe}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -64,8 +64,12 @@ ps_server <- function(name, mode, msg = "", log = "") {
       name, mode, shQuote(msg), shQuote(log)),
     wait = FALSE
   )
-  # Give the server time to create the pipe
-  Sys.sleep(1.5)
+  
+  for (i in 1:100) {
+    if (name %in% list.files("//./pipe/")) return(invisible())
+    Sys.sleep(0.1)
+  }
+  stop("Pipe '", name, "' was not created")
 }
 ```
 </details>
