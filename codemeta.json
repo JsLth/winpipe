@@ -115,6 +115,18 @@
     },
     {
       "@type": "SoftwareApplication",
+      "identifier": "processx",
+      "name": "processx",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=processx"
+    },
+    {
+      "@type": "SoftwareApplication",
       "identifier": "httpuv",
       "name": "httpuv",
       "provider": {
@@ -141,5 +153,5 @@
   "softwareRequirements": {
     "SystemRequirements": null
   },
-  "fileSize": "6717.036KB"
+  "fileSize": "6805.589KB"
 }
