@@ -1,4 +1,4 @@
-# A basic example
+# Basics of winpipes
 
 ``` r
 
@@ -180,7 +180,7 @@ np_token_info(srv)
 #> 8                                       S-1-5-11
 #> 9                                       S-1-5-15
 #> 10                                     S-1-5-113
-#> 11                              S-1-5-5-0-866261
+#> 11                              S-1-5-5-0-771692
 #> 12                                       S-1-2-0
 #> 13                                   S-1-5-64-10
 #> 14                                  S-1-16-12288
@@ -195,7 +195,7 @@ np_token_info(srv)
 #> 8                                       S-1-5-11    TRUE
 #> 9                                       S-1-5-15    TRUE
 #> 10                                     S-1-5-113    TRUE
-#> 11                              S-1-5-5-0-866261    TRUE
+#> 11                              S-1-5-5-0-771692    TRUE
 #> 12                                       S-1-2-0    TRUE
 #> 13                                   S-1-5-64-10    TRUE
 #> 14                                  S-1-16-12288   FALSE
@@ -284,8 +284,8 @@ Until a client connects, the server will keep waiting and blocking.
 
 srv <- start_server()
 while (!np_exists("winpipe-block")) Sys.sleep(0.1)
-srv$read_error()
-#> [1] "Waiting for client...\r\n"
+cat(srv$read_error())
+#> Waiting for client...
 ```
 
 When a non-blocking client connects, it will return immediately and
@@ -329,7 +329,7 @@ cli <- winpipe(
 
 system.time(x <- readLines(cli, n = 1))
 #>    user  system elapsed 
-#>    0.00    0.00    2.95
+#>    0.00    0.00    2.97
 
 x
 #> [1] "hello"
@@ -350,10 +350,6 @@ By default, the session is blocked for 60 seconds
 srv <- winpipe("winpipe-block", server = TRUE, blocking = TRUE, timeout = 1)
 #> Error in `open.connection()`:
 #> ! Timed out after 1.0 s waiting for a client
-
-close(srv)
-#> Error in `UseMethod()`:
-#> ! no applicable method for 'close' applied to an object of class "c('r_process', 'process', 'R6')"
 ```
 
 The timeout can be controlled after pipe creation.
@@ -377,8 +373,11 @@ while (!np_exists("winpipe-block")) Sys.sleep(0.1)
 srv$interrupt()
 #> [1] TRUE
 Sys.sleep(0.5)
-srv$read_error()
-#> [1] "Waiting for client...\r\n\r\nError in open.connection(con, open = open, blocking = blocking, ...) : \r\n  Interrupted while waiting for a client\r\n"
+cat(srv$read_error())
+#> Waiting for client...
+#> 
+#> Error in open.connection(con, open = open, blocking = blocking, ...) : 
+#>   Interrupted while waiting for a client
 ```
 
 A non-blocking winpipe can be made blocking by using
@@ -446,13 +445,13 @@ instance.
 writeLines("here is a really really really big payload")
 #> here is a really really really big payload
 if (np_peek(srv) > 20) {
-  writeLines("payload is too big")
+  writeLines("payload is too big", srv)
+  close(srv)
 }
 
 readLines(cli)
 #> character(0)
 
-close(srv)
 close(cli)
 ```
 
@@ -472,7 +471,7 @@ pipe with
 srv <- winpipe("example-sd", server = TRUE)
 np_sd(srv)
 #> <winpipe_sd>
-#> O:BAG:S-1-5-21-3289802278-1561746829-1498425070-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;S-1-5-5-0-866261)
+#> O:BAG:S-1-5-21-3289802278-1561746829-1498425070-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;S-1-5-5-0-771692)
 ```
 
 Each entry in parentheses is an access control entry (ACE) that allows

@@ -1,4 +1,4 @@
-# \`fifo()\` vs. processx vs. winpipe
+# fifo() vs. processx vs. winpipe
 
 R can talk to Windows named pipes in three ways: base R’s
 [`fifo()`](https://rdrr.io/r/base/connections.html),
@@ -62,7 +62,7 @@ ps_server <- function(name, mode, msg = "", log = "") {
       name, mode, shQuote(msg), shQuote(log)),
     wait = FALSE
   )
-  
+
   for (i in 1:100) {
     if (name %in% list.files("//./pipe/")) return(invisible())
     Sys.sleep(0.1)

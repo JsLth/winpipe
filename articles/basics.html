@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>A basic example • winpipe</title>
+<title>Basics of winpipes • winpipe</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -24,7 +24,7 @@
 <link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="A basic example">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Basics of winpipes">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -44,10 +44,11 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../index.html"><span class="fa fa-home"></span> Overview</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-book"></span> Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
-<li><a class="dropdown-item" href="../articles/http.html">HTTP over named pipes</a></li>
+<li><a class="dropdown-item" href="../articles/basics.html">Basics of winpipes</a></li>
+    <li><a class="dropdown-item" href="../articles/http.html">HTTP over named pipes</a></li>
     <li><a class="dropdown-item" href="../articles/compare.html">`fifo()` vs. processx vs. winpipe</a></li>
   </ul>
 </li>
@@ -70,7 +71,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>A basic example</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Basics of winpipes</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/jslth/winpipe/blob/main/vignettes/basics.Rmd" class="external-link"><code>vignettes/basics.Rmd</code></a></small>
@@ -220,7 +221,7 @@ impersonating, they can retrieve information from the clients end. In
 <span><span class="co">#&gt; 8                                       S-1-5-11</span></span>
 <span><span class="co">#&gt; 9                                       S-1-5-15</span></span>
 <span><span class="co">#&gt; 10                                     S-1-5-113</span></span>
-<span><span class="co">#&gt; 11                              S-1-5-5-0-866261</span></span>
+<span><span class="co">#&gt; 11                              S-1-5-5-0-771692</span></span>
 <span><span class="co">#&gt; 12                                       S-1-2-0</span></span>
 <span><span class="co">#&gt; 13                                   S-1-5-64-10</span></span>
 <span><span class="co">#&gt; 14                                  S-1-16-12288</span></span>
@@ -235,7 +236,7 @@ impersonating, they can retrieve information from the clients end. In
 <span><span class="co">#&gt; 8                                       S-1-5-11    TRUE</span></span>
 <span><span class="co">#&gt; 9                                       S-1-5-15    TRUE</span></span>
 <span><span class="co">#&gt; 10                                     S-1-5-113    TRUE</span></span>
-<span><span class="co">#&gt; 11                              S-1-5-5-0-866261    TRUE</span></span>
+<span><span class="co">#&gt; 11                              S-1-5-5-0-771692    TRUE</span></span>
 <span><span class="co">#&gt; 12                                       S-1-2-0    TRUE</span></span>
 <span><span class="co">#&gt; 13                                   S-1-5-64-10    TRUE</span></span>
 <span><span class="co">#&gt; 14                                  S-1-16-12288   FALSE</span></span>
@@ -311,8 +312,8 @@ blocking.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">srv</span> <span class="op">&lt;-</span> <span class="fu">start_server</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="kw">while</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="../reference/winpipe.html">np_exists</a></span><span class="op">(</span><span class="st">"winpipe-block"</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.sleep.html" class="external-link">Sys.sleep</a></span><span class="op">(</span><span class="fl">0.1</span><span class="op">)</span></span>
-<span><span class="va">srv</span><span class="op">$</span><span class="fu">read_error</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Waiting for client...\r\n"</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">srv</span><span class="op">$</span><span class="fu">read_error</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Waiting for client...</span></span></code></pre></div>
 <p>When a non-blocking client connects, it will return immediately and
 return nothing because the server did not have the time to respond.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
@@ -348,7 +349,7 @@ responded and thus return the server’s greeting.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">cli</span>, n <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;    0.00    0.00    2.95</span></span>
+<span><span class="co">#&gt;    0.00    0.00    2.97</span></span>
 <span></span>
 <span><span class="va">x</span></span>
 <span><span class="co">#&gt; [1] "hello"</span></span>
@@ -365,11 +366,7 @@ using the <code>timeout</code> argument.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">srv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/winpipe.html">winpipe</a></span><span class="op">(</span><span class="st">"winpipe-block"</span>, server <span class="op">=</span> <span class="cn">TRUE</span>, blocking <span class="op">=</span> <span class="cn">TRUE</span>, timeout <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `open.connection()`:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Timed out after 1.0 s waiting for a client</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">close</a></span><span class="op">(</span><span class="va">srv</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `UseMethod()`:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> no applicable method for 'close' applied to an object of class "c('r_process', 'process', 'R6')"</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Timed out after 1.0 s waiting for a client</span></span></code></pre></div>
 <p>The timeout can be controlled after pipe creation.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">srv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/winpipe.html">winpipe</a></span><span class="op">(</span><span class="st">"winpipe-block"</span>, server <span class="op">=</span> <span class="cn">TRUE</span>, timeout <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
@@ -386,8 +383,11 @@ execution.</p>
 <span><span class="va">srv</span><span class="op">$</span><span class="fu">interrupt</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.sleep.html" class="external-link">Sys.sleep</a></span><span class="op">(</span><span class="fl">0.5</span><span class="op">)</span></span>
-<span><span class="va">srv</span><span class="op">$</span><span class="fu">read_error</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Waiting for client...\r\n\r\nError in open.connection(con, open = open, blocking = blocking, ...) : \r\n  Interrupted while waiting for a client\r\n"</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">srv</span><span class="op">$</span><span class="fu">read_error</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Waiting for client...</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Error in open.connection(con, open = open, blocking = blocking, ...) : </span></span>
+<span><span class="co">#&gt;   Interrupted while waiting for a client</span></span></code></pre></div>
 <p>A non-blocking winpipe can be made blocking by using
 <code><a href="../reference/winpipe.html">np_listen()</a></code>:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
@@ -442,13 +442,13 @@ pipe instance.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="st">"here is a really really really big payload"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; here is a really really really big payload</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="../reference/info.html">np_peek</a></span><span class="op">(</span><span class="va">srv</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">20</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="st">"payload is too big"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="st">"payload is too big"</span>, <span class="va">srv</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">close</a></span><span class="op">(</span><span class="va">srv</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">cli</span><span class="op">)</span></span>
 <span><span class="co">#&gt; character(0)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">close</a></span><span class="op">(</span><span class="va">srv</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">close</a></span><span class="op">(</span><span class="va">cli</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -464,7 +464,7 @@ can inspect the SD of any pipe with <code><a href="../reference/info.html">np_sd
 <code class="sourceCode R"><span><span class="va">srv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/winpipe.html">winpipe</a></span><span class="op">(</span><span class="st">"example-sd"</span>, server <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/info.html">np_sd</a></span><span class="op">(</span><span class="va">srv</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;winpipe_sd&gt;</span></span>
-<span><span class="co">#&gt; O:BAG:S-1-5-21-3289802278-1561746829-1498425070-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;S-1-5-5-0-866261)</span></span></code></pre></div>
+<span><span class="co">#&gt; O:BAG:S-1-5-21-3289802278-1561746829-1498425070-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;S-1-5-5-0-771692)</span></span></code></pre></div>
 <p>Each entry in parentheses is an access control entry (ACE) that
 allows or denies a set of rights to an account. To build your own,
 create ACEs with <code><a href="../reference/ace.html">ace()</a></code> and collect them with
