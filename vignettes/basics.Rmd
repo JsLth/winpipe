@@ -212,6 +212,8 @@ The timeout can be controlled after pipe creation.
 srv <- winpipe("winpipe-block", server = TRUE, timeout = 1)
 np_set_timeout(srv, 3)
 np_get_timeout(srv)
+
+close(srv)
 ```
 
 Another way to stop blocking, of course, is to interrupt the execution.
@@ -229,6 +231,8 @@ A non-blocking winpipe can be made blocking by using `np_listen()`:
 ```{r make-blocking, error=TRUE}
 srv <- winpipe("winpipe-noblock", server = TRUE)
 np_listen(srv, timeout = 1)
+
+close(srv)
 ```
 
 ## Peeking
@@ -270,7 +274,6 @@ readLines(cli)
 close(srv)
 close(cli)
 ```
-
 
 
 # Security descriptors
