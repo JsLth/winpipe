@@ -13,11 +13,10 @@ extern "C" SEXP _winpipe_cpp_np_connection(SEXP name, SEXP sddl, SEXP server, SE
   END_CPP11
 }
 // connection.cpp
-void cpp_np_conn_accept(SEXP con);
-extern "C" SEXP _winpipe_cpp_np_conn_accept(SEXP con) {
+bool cpp_np_conn_accept(SEXP con, bool blocking, double timeout);
+extern "C" SEXP _winpipe_cpp_np_conn_accept(SEXP con, SEXP blocking, SEXP timeout) {
   BEGIN_CPP11
-    cpp_np_conn_accept(cpp11::as_cpp<cpp11::decay_t<SEXP>>(con));
-    return R_NilValue;
+    return cpp11::as_sexp(cpp_np_conn_accept(cpp11::as_cpp<cpp11::decay_t<SEXP>>(con), cpp11::as_cpp<cpp11::decay_t<bool>>(blocking), cpp11::as_cpp<cpp11::decay_t<double>>(timeout)));
   END_CPP11
 }
 // connection.cpp
@@ -116,7 +115,7 @@ extern "C" SEXP _winpipe_cpp_sd_build(SEXP sd) {
 extern "C" {
 static const R_CallMethodDef CallEntries[] = {
     {"_winpipe_cpp_default_dacl",       (DL_FUNC) &_winpipe_cpp_default_dacl,       0},
-    {"_winpipe_cpp_np_conn_accept",     (DL_FUNC) &_winpipe_cpp_np_conn_accept,     1},
+    {"_winpipe_cpp_np_conn_accept",     (DL_FUNC) &_winpipe_cpp_np_conn_accept,     3},
     {"_winpipe_cpp_np_conn_disconnect", (DL_FUNC) &_winpipe_cpp_np_conn_disconnect, 1},
     {"_winpipe_cpp_np_conn_exists",     (DL_FUNC) &_winpipe_cpp_np_conn_exists,     1},
     {"_winpipe_cpp_np_conn_info",       (DL_FUNC) &_winpipe_cpp_np_conn_info,       1},

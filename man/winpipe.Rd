@@ -24,7 +24,7 @@ winpipe(
 
 is_winpipe(x)
 
-np_listen(con)
+np_listen(con, blocking = TRUE, timeout = NULL)
 
 np_disconnect(con)
 
@@ -56,7 +56,9 @@ For a server, a blocking open waits until a client connects (see
 \code{np_listen()} can accept a client later. For reads, a blocking
 connection waits for data, while a non-blocking one returns only what is
 available (possibly nothing) and leaves a partial line for the next read.
-Writes always block. Defaults to \code{FALSE}.}
+Writes always block. Defaults to \code{FALSE}. For \code{np_listen()},
+\code{blocking = TRUE} (the default) waits until a client connects (see
+\code{timeout}), while \code{FALSE} arms the pipe and returns immediately.}
 
 \item{sddl}{\code{[winpipe_sd]} or \code{[character(1)]}
 
@@ -77,7 +79,10 @@ of instances. Defaults to \code{Inf}.}
 Seconds without progress before a read, write, accept, or open fails with
 an error. If \code{Inf}, waits forever. Defaults to \code{getOption("timeout")}.
 A read that times out after receiving bytes returns them with a warning instead of
-discarding them.}
+discarding them. \code{np_listen()} also accepts \code{timeout}, which
+overrides the connection's timeout for that call only (\code{NULL}, the
+default, uses the connection's). It has no effect when
+\code{blocking = FALSE}.}
 
 \item{con}{\code{[winpipe]}
 
@@ -93,8 +98,9 @@ All methods accepting a connection work on named pipes. Use \code{open = "r+b"} 
 \code{\link{readBin}} and \code{\link{writeBin}}.
 
 \code{is_winpipe()} and \code{np_exists()} return \code{TRUE} or \code{FALSE}.
-\code{np_listen()} and \code{np_disconnect()} return nothing and are
-called for their side effects.
+\code{np_disconnect()} returns nothing and is called for its side effects.
+\code{np_listen()} invisibly returns \code{TRUE} if a client is connected and
+\code{FALSE} if a non-blocking listen is still waiting for one.
 \code{np_list()} returns a character vector of named pipes on the system. It
 is equivalent to list.files() on a named pipe.
 }
@@ -104,7 +110,8 @@ Functions to create, open, and close named pipes on Windows.
 \itemize{
 \item{\code{winpipe()} creates a new named pipe on Windows.}
 \item{\code{is_winpipe()} checks if an object is a winpipe.}
-\item{\code{np_listen()} blocks the session and listens to a pipe.}
+\item{\code{np_listen()} listens for a client on a server pipe, either
+blocking the session until one connects or arming the pipe without waiting.}
 \item{\code{np_disconnect()} disconnects a client.}
 \item{\code{np_exists()} checks if a named pipe name exists.}
 \item{\code{np_list()} lists all named pipes currently on the machine.}
@@ -117,6 +124,8 @@ pipe so that a client can connect to it. With \code{blocking = TRUE} the
 open waits for a client to connect; otherwise run \code{np_listen()} to block
 the session until one does.
 \code{np_disconnect()} drops the current client and discards all unread data.
+The instance accepts no new client until \code{np_listen()} is called again;
+use \code{np_listen(con, blocking = FALSE)} to re-arm it without blocking.
 \code{close()} destroys the instance but does not disconnect first, so data
 already written stays readable by the client.
 

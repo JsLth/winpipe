@@ -4,8 +4,8 @@ cpp_np_connection <- function(name, sddl, server, blocking, max_instances, timeo
   .Call(`_winpipe_cpp_np_connection`, name, sddl, server, blocking, max_instances, timeout)
 }
 
-cpp_np_conn_accept <- function(con) {
-  invisible(.Call(`_winpipe_cpp_np_conn_accept`, con))
+cpp_np_conn_accept <- function(con, blocking, timeout) {
+  .Call(`_winpipe_cpp_np_conn_accept`, con, blocking, timeout)
 }
 
 cpp_np_conn_disconnect <- function(con) {

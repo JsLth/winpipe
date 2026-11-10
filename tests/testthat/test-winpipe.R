@@ -177,6 +177,87 @@ test_that("clients can be disconnected", {
 })
 
 
+test_that("a disconnected server can be re-armed without blocking", {
+  srv <- winpipe("test", server = TRUE)
+  cli <- winpipe("test", server = FALSE)
+  on.exit(close(srv), add = TRUE)
+  on.exit(close(cli), add = TRUE)
+
+  np_disconnect(srv)
+  expect_error(winpipe("test", server = FALSE), "busy")
+
+  expect_false(np_listen(srv, blocking = FALSE))
+  # Re-arming again while pending is harmless
+  expect_false(np_listen(srv, blocking = FALSE))
+  expect_false(np_connected(srv))
+
+  cli2 <- winpipe("test", server = FALSE)
+  on.exit(close(cli2), add = TRUE)
+  expect_true(np_connected(srv))
+  expect_true(np_listen(srv, blocking = FALSE))
+
+  writeLines("again", cli2)
+  expect_equal(readLines(srv, n = 1), "again")
+})
+
+
+test_that("a pending non-blocking listen can be resolved, disconnected, or closed", {
+  srv <- winpipe("test", server = TRUE)
+  cli <- winpipe("test", server = FALSE)
+  on.exit(close(cli), add = TRUE)
+  np_disconnect(srv)
+
+  # Blocking listen picks up a connect already in flight
+  np_listen(srv, blocking = FALSE)
+  cli2 <- winpipe("test", server = FALSE)
+  expect_true(np_listen(srv))
+  close(cli2)
+
+  # Disconnect cancels a pending connect, and the pipe can be re-armed
+  np_disconnect(srv)
+  np_listen(srv, blocking = FALSE)
+  np_disconnect(srv)
+  expect_false(np_listen(srv, blocking = FALSE))
+  cli3 <- winpipe("test", server = FALSE)
+  expect_true(np_connected(srv))
+  close(cli3)
+
+  # Closing with a connect pending must not crash
+  np_disconnect(srv)
+  np_listen(srv, blocking = FALSE)
+  expect_silent(close(srv))
+})
+
+
+test_that("blocking listen times out without a client", {
+  srv <- winpipe("test", server = TRUE, timeout = 0.3)
+  cli <- winpipe("test", server = FALSE)
+  on.exit(close(srv), add = TRUE)
+  close(cli)
+  np_disconnect(srv)
+  expect_error(np_listen(srv), "Timed out")
+})
+
+
+test_that("np_listen() timeout overrides the connection timeout per call", {
+  srv <- winpipe("test", server = TRUE, timeout = 30)
+  cli <- winpipe("test", server = FALSE)
+  on.exit(close(srv), add = TRUE)
+  close(cli)
+  np_disconnect(srv)
+
+  elapsed <- system.time(
+    expect_error(np_listen(srv, timeout = 0.3), "Timed out after 0.3 s")
+  )[["elapsed"]]
+  expect_lt(elapsed, 5)
+  # The stored timeout is untouched
+  expect_equal(np_get_timeout(srv), 30)
+
+  expect_error(np_listen(srv, timeout = NA_real_), "timeout")
+  expect_error(np_listen(srv, timeout = -1), "non-negative")
+})
+
+
 test_that("timeouts can be set post-hoc", {
   pipe <- winpipe("test")
   on.exit(close(pipe), add = TRUE)

@@ -5,7 +5,8 @@
 #' \itemize{
 #'  \item{\code{winpipe()} creates a new named pipe on Windows.}
 #'  \item{\code{is_winpipe()} checks if an object is a winpipe.}
-#'  \item{\code{np_listen()} blocks the session and listens to a pipe.}
+#'  \item{\code{np_listen()} listens for a client on a server pipe, either
+#'  blocking the session until one connects or arming the pipe without waiting.}
 #'  \item{\code{np_disconnect()} disconnects a client.}
 #'  \item{\code{np_exists()} checks if a named pipe name exists.}
 #'  \item{\code{np_list()} lists all named pipes currently on the machine.}
@@ -31,7 +32,9 @@
 #'   \code{np_listen()} can accept a client later. For reads, a blocking
 #'   connection waits for data, while a non-blocking one returns only what is
 #'   available (possibly nothing) and leaves a partial line for the next read.
-#'   Writes always block. Defaults to \code{FALSE}.
+#'   Writes always block. Defaults to \code{FALSE}. For \code{np_listen()},
+#'   \code{blocking = TRUE} (the default) waits until a client connects (see
+#'   \code{timeout}), while \code{FALSE} arms the pipe and returns immediately.
 #' @param sddl \code{[winpipe_sd]} or \code{[character(1)]}
 #' 
 #' Security descriptor string, or a security descriptor built with
@@ -41,7 +44,7 @@
 #' 
 #' Maximum allowed instances that can be opened on a named pipe. Can be a number
 #'   between 1 and 254. If \code{Inf}, a maximum of 255 instances is allowed.
-#'   `max_instances` is set on the creation of the pipe. This means that all
+#'   \code{max_instances} is set on the creation of the pipe. This means that all
 #'   connections connecting to an existing pipe cannot change the maximum number
 #'   of instances. Defaults to \code{Inf}.
 #' @param timeout \code{[numeric(1)]}
@@ -49,7 +52,10 @@
 #' Seconds without progress before a read, write, accept, or open fails with
 #'   an error. If \code{Inf}, waits forever. Defaults to \code{getOption("timeout")}.
 #'   A read that times out after receiving bytes returns them with a warning instead of
-#'   discarding them.
+#'   discarding them. \code{np_listen()} also accepts \code{timeout}, which
+#'   overrides the connection's timeout for that call only (\code{NULL}, the
+#'   default, uses the connection's). It has no effect when
+#'   \code{blocking = FALSE}.
 #' @param con \code{[winpipe]}
 #' 
 #' A \code{winpipe} connection created by \code{winpipe}.
@@ -60,8 +66,9 @@
 #' \code{\link{readBin}} and \code{\link{writeBin}}.
 #' 
 #' \code{is_winpipe()} and \code{np_exists()} return \code{TRUE} or \code{FALSE}.
-#' \code{np_listen()} and \code{np_disconnect()} return nothing and are
-#' called for their side effects.
+#' \code{np_disconnect()} returns nothing and is called for its side effects.
+#' \code{np_listen()} invisibly returns \code{TRUE} if a client is connected and
+#' \code{FALSE} if a non-blocking listen is still waiting for one.
 #' \code{np_list()} returns a character vector of named pipes on the system. It
 #' is equivalent to list.files() on a named pipe.
 #' 
@@ -72,6 +79,8 @@
 #' open waits for a client to connect; otherwise run \code{np_listen()} to block
 #' the session until one does.
 #' \code{np_disconnect()} drops the current client and discards all unread data.
+#' The instance accepts no new client until \code{np_listen()} is called again;
+#' use \code{np_listen(con, blocking = FALSE)} to re-arm it without blocking.
 #' \code{close()} destroys the instance but does not disconnect first, so data
 #' already written stays readable by the client.
 #' 
@@ -196,8 +205,14 @@ check_winpipe <- function(x) {
 
 #' @rdname winpipe
 #' @export
-np_listen <- function(con) {
-  invisible(cpp_np_conn_accept(con))
+np_listen <- function(con, blocking = TRUE, timeout = NULL) {
+  check_winpipe(con)
+  if (is.null(timeout)) {
+    timeout <- NA_real_
+  } else if (!is.numeric(timeout) || length(timeout) != 1L || is.na(timeout)) {
+    stop("`timeout` must be a single non-missing number or NULL.")
+  }
+  invisible(cpp_np_conn_accept(con, isTRUE(blocking), as.double(timeout)))
 }
 
 

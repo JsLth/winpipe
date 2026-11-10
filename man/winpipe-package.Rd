@@ -21,10 +21,5 @@ Useful links:
 \author{
 \strong{Maintainer}: Jonas Lieth \email{jslth@outlook.com} [copyright holder]
 
-Authors:
-\itemize{
-  \item Jonas Lieth \email{jslth@outlook.com} [copyright holder]
-}
-
 }
 \keyword{internal}

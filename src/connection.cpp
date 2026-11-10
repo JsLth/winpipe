@@ -40,6 +40,9 @@ struct PipeState {
     DWORD timeout_ms = 60000;
     unsigned char buf[4096];
     size_t pos = 0, len = 0;
+    HANDLE cev = NULL;
+    OVERLAPPED cov{};
+    bool connecting = false;
 };
 
 PipeState* state_of(Rconnection con) {
@@ -278,7 +281,7 @@ IoResult io_write(PipeState* s, const void* src, DWORD n) {
     return finish_io(s->h, &ov, ok, s->timeout_ms);
 }
 
-IoResult io_connect(PipeState* s) {
+IoResult io_connect(PipeState* s, DWORD timeout_ms) {
     ResetEvent(s->ev);
     OVERLAPPED ov;
     std::memset(&ov, 0, sizeof(ov));
@@ -290,13 +293,46 @@ IoResult io_connect(PipeState* s) {
     DWORD e = GetLastError();
     if (e == ERROR_PIPE_CONNECTED) return IoResult{IoStatus::Ok, 0, 0};
     SetLastError(e);
-    return finish_io(s->h, &ov, FALSE, s->timeout_ms);
+    return finish_io(s->h, &ov, FALSE, timeout_ms);
+}
+
+bool io_listen_async(PipeState* s) {
+    if (s->connecting) {
+        DWORD b = 0;
+        if (GetOverlappedResult(s->h, &s->cov, &b, FALSE)) {
+            s->connecting = false;
+            return true;
+        }
+        DWORD e = GetLastError();
+        if (e == ERROR_IO_INCOMPLETE) return false;
+        s->connecting = false;
+        win_error(e);
+    }
+
+    if (!s->cev) {
+        s->cev = CreateEventW(NULL, TRUE, FALSE, NULL);
+        if (!s->cev) win_error();
+    }
+    ResetEvent(s->cev);
+    std::memset(&s->cov, 0, sizeof(s->cov));
+    s->cov.hEvent = s->cev;
+    s->pos = s->len = 0;
+
+    if (ConnectNamedPipe(s->h, &s->cov)) return true;
+    DWORD e = GetLastError();
+    if (e == ERROR_PIPE_CONNECTED) return true;
+    if (e == ERROR_IO_PENDING) {
+        s->connecting = true;
+        return false;
+    }
+    win_error(e);
+    return false;
 }
 
 // Raises an R error for a failed accept. No C++ objects with destructors alive.
-[[noreturn]] void accept_failed(const PipeState* s, const IoResult& r) {
+[[noreturn]] void accept_failed(DWORD timeout_ms, const IoResult& r) {
     if (r.status == IoStatus::Timeout)
-        r_errorf("Timed out after %.1f s waiting for a client", s->timeout_ms / 1000.0);
+        r_errorf("Timed out after %.1f s waiting for a client", timeout_ms / 1000.0);
     if (r.status == IoStatus::Interrupted)
         r_errorf("Interrupted while waiting for a client");
     win_error(r.err);
@@ -386,7 +422,23 @@ HANDLE open_client_handle(const std::wstring& name, DWORD access, DWORD timeout_
     }
 }
 
+void settle_connect(PipeState* s) {
+    if (!s->connecting) return;
+    DWORD b = 0;
+    if (!GetOverlappedResult(s->h, &s->cov, &b, FALSE) &&
+        GetLastError() == ERROR_IO_INCOMPLETE) {
+        CancelIoEx(s->h, &s->cov);
+        GetOverlappedResult(s->h, &s->cov, &b, TRUE);
+    }
+    s->connecting = false;
+}
+
 void release_handles(PipeState* s) {
+    if (s->h != INVALID_HANDLE_VALUE) settle_connect(s);
+    if (s->cev) {
+        CloseHandle(s->cev);
+        s->cev = NULL;
+    }
     if (s->h != INVALID_HANDLE_VALUE) {
         CloseHandle(s->h);
         s->h = INVALID_HANDLE_VALUE;
@@ -418,10 +470,10 @@ Rboolean np_con_open(Rconnection con) {
         }
         // Non-blocking opens return immediately
         if (con->blocking) {
-            IoResult r = io_connect(s);
+            IoResult r = io_connect(s, s->timeout_ms);
             if (r.status != IoStatus::Ok) {
                 release_handles(s);
-                accept_failed(s, r);
+                accept_failed(s->timeout_ms, r);
             }
         }
     } else {
@@ -658,11 +710,25 @@ SEXP cpp_np_connection(const std::string& name, const std::string& sddl,
 
 // Server only: wait for a client or a disconnect.
 [[cpp11::register]]
-void cpp_np_conn_accept(SEXP con) {
+bool cpp_np_conn_accept(SEXP con, bool blocking, double timeout) {
     PipeState* s = checked_state(con);
     if (!s->server) cpp11::stop("Only a server pipe can accept clients.");
-    IoResult r = io_connect(s);
-    if (r.status != IoStatus::Ok) accept_failed(s, r);
+    if (!blocking) return io_listen_async(s);
+
+    // NA means "use the connection's own timeout"
+    const DWORD timeout_ms = R_IsNA(timeout) ? s->timeout_ms : seconds_to_ms(timeout);
+
+    IoResult r;
+    if (s->connecting) {
+        SetLastError(ERROR_IO_PENDING);
+        r = finish_io(s->h, &s->cov, FALSE, timeout_ms);
+        s->connecting = false;
+        s->pos = s->len = 0;
+    } else {
+        r = io_connect(s, timeout_ms);
+    }
+    if (r.status != IoStatus::Ok) accept_failed(timeout_ms, r);
+    return true;
 }
 
 // Server only: drop the current client.
@@ -670,6 +736,7 @@ void cpp_np_conn_accept(SEXP con) {
 void cpp_np_conn_disconnect(SEXP con) {
     PipeState* s = checked_state(con);
     if (!s->server) cpp11::stop("Only a server pipe can disconnect clients.");
+    settle_connect(s);
     s->pos = s->len = 0;
     DisconnectNamedPipe(s->h);
 }
