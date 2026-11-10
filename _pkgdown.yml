@@ -21,8 +21,8 @@ navbar:
       menu:
         - text: "HTTP over named pipes"
           href: articles/http.html
-        - text: "fifo() vs. processx vs. winpipe"
-          href: articles/Benchmark.html
+        - text: "`fifo()` vs. processx vs. winpipe"
+          href: articles/compare.html
     - text: Reference
       icon: fa-search
       href: reference/index.html
