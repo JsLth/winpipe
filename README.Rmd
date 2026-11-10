@@ -34,7 +34,9 @@ Features:
 * Named pipes are represented as native R connections, i.e., I/O works out of the box
 * Let R talk to non-R processes
 * Can accept clients without blocking the R session
-* Includes an interface to [SDDL](https://learn.microsoft.com/en-us/windows/win32/secauthz/security-descriptor-definition-language) 
+* Includes an interface to [SDDL](https://learn.microsoft.com/en-us/windows/win32/secauthz/security-descriptor-definition-language)
+
+Read the [introduction vignette](https://jslth.github.io/winpipe/articles/basics.html) to learn more about what `{winpipe}` can do.
 
 ## Installation
 
@@ -59,13 +61,13 @@ client <- winpipe("a-pipe", server = FALSE)
 Since winpipes are R connections, most I/O functions work out of the box. You can, for example, pass the client as a file name to `write.csv()`:
 
 ```{r write}
-write.csv(iris, file = client)
+write.table(iris, file = client)
 ```
 
 The server can then receive the data. Depending on the permissions, this works in both directions (client → server and server → client)
 
 ```{r read}
-head(read.csv(server))
+head(read.table(server))
 ```
 
 Beware, however, that reading consumes a payload. Another call to `read.csv()` would result in an error. You can peek a payload without consuming it using `np_peek()`. This confirms that the payload has been consumed by giving the number of bytes left to read.
@@ -105,7 +107,7 @@ close(pipe)
 * [`processx`](https://processx.r-lib.org/) can emulate named pipes as child processes
 * [`httppipe`](https://github.com/richfitz/httppipe) uses `reticulate` to communicate with named pipes through Python
 
-See `vignette("compare")` for a difference between `fifo()`, `{processx}`, and `{winpipe}`.
+See [`vignette("compare")`](https://jslth.github.io/winpipe/articles/compare.html) for a difference between `fifo()`, `{processx}`, and `{winpipe}`.
 
 
 ## AI Use Statement

@@ -32,6 +32,10 @@ Features:
 - Includes an interface to
   [SDDL](https://learn.microsoft.com/en-us/windows/win32/secauthz/security-descriptor-definition-language)
 
+Read the [introduction
+vignette](https://jslth.github.io/winpipe/articles/basics.html) to learn
+more about what `{winpipe}` can do.
+
 ## Installation
 
 You can install the development version of winpipe from
@@ -58,21 +62,21 @@ box. You can, for example, pass the client as a file name to
 `write.csv()`:
 
 ``` r
-write.csv(iris, file = client)
+write.table(iris, file = client)
 ```
 
 The server can then receive the data. Depending on the permissions, this
 works in both directions (client → server and server → client)
 
 ``` r
-head(read.csv(server))
-#>   X Sepal.Length Sepal.Width Petal.Length Petal.Width Species
-#> 1 1          5.1         3.5          1.4         0.2  setosa
-#> 2 2          4.9         3.0          1.4         0.2  setosa
-#> 3 3          4.7         3.2          1.3         0.2  setosa
-#> 4 4          4.6         3.1          1.5         0.2  setosa
-#> 5 5          5.0         3.6          1.4         0.2  setosa
-#> 6 6          5.4         3.9          1.7         0.4  setosa
+head(read.table(server))
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#> 1          5.1         3.5          1.4         0.2  setosa
+#> 2          4.9         3.0          1.4         0.2  setosa
+#> 3          4.7         3.2          1.3         0.2  setosa
+#> 4          4.6         3.1          1.5         0.2  setosa
+#> 5          5.0         3.6          1.4         0.2  setosa
+#> 6          5.4         3.9          1.7         0.4  setosa
 ```
 
 Beware, however, that reading consumes a payload. Another call to
@@ -113,7 +117,7 @@ input).
 pipe <- winpipe("sd-pipe", sddl = sd)
 np_sd(pipe)
 #> <winpipe_sd>
-#> O:S-1-5-21-2474231639-1219136063-2303250501-161860G:DUD:(D;;FA;;;WD)(A;;FA;;;BA)(A;;FA;;;SY)
+#> O:S-1-5-21-1492369709-893483088-3947136618-1001G:S-1-5-21-1492369709-893483088-3947136618-1001D:(D;;FA;;;WD)(A;;FA;;;BA)(A;;FA;;;SY)
 ```
 
 ## Related work
@@ -125,8 +129,9 @@ np_sd(pipe)
 - [`httppipe`](https://github.com/richfitz/httppipe) uses `reticulate`
   to communicate with named pipes through Python
 
-See `vignette("compare")` for a difference between `fifo()`,
-`{processx}`, and `{winpipe}`.
+See
+[`vignette("compare")`](https://jslth.github.io/winpipe/articles/compare.html)
+for a difference between `fifo()`, `{processx}`, and `{winpipe}`.
 
 ## AI Use Statement
 
