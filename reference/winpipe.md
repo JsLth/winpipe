@@ -6,7 +6,8 @@ Functions to create, open, and close named pipes on Windows.
 
 - `is_winpipe()` checks if an object is a winpipe.
 
-- `np_listen()` blocks the session and listens to a pipe.
+- `np_listen()` listens for a client on a server pipe, either blocking
+  the session until one connects or arming the pipe without waiting.
 
 - `np_disconnect()` disconnects a client.
 
@@ -32,7 +33,7 @@ open(con, open = "r+", blocking = FALSE, ...)
 
 is_winpipe(x)
 
-np_listen(con)
+np_listen(con, blocking = TRUE, timeout = NULL)
 
 np_disconnect(con)
 
@@ -75,7 +76,9 @@ np_list()
   client later. For reads, a blocking connection waits for data, while a
   non-blocking one returns only what is available (possibly nothing) and
   leaves a partial line for the next read. Writes always block. Defaults
-  to `FALSE`.
+  to `FALSE`. For `np_listen()`, `blocking = TRUE` (the default) waits
+  until a client connects (see `timeout`), while `FALSE` arms the pipe
+  and returns immediately.
 
 - sddl:
 
@@ -104,7 +107,10 @@ np_list()
   Seconds without progress before a read, write, accept, or open fails
   with an error. If `Inf`, waits forever. Defaults to
   `getOption("timeout")`. A read that times out after receiving bytes
-  returns them with a warning instead of discarding them.
+  returns them with a warning instead of discarding them. `np_listen()`
+  also accepts `timeout`, which overrides the connection's timeout for
+  that call only (`NULL`, the default, uses the connection's). It has no
+  effect when `blocking = FALSE`.
 
 - con:
 
@@ -128,10 +134,12 @@ accepting a connection work on named pipes. Use `open = "r+b"` for
 [`readBin`](https://rdrr.io/r/base/readBin.html) and
 [`writeBin`](https://rdrr.io/r/base/readBin.html).
 
-`is_winpipe()` and `np_exists()` return `TRUE` or `FALSE`. `np_listen()`
-and `np_disconnect()` return nothing and are called for their side
-effects. `np_list()` returns a character vector of named pipes on the
-system.
+`is_winpipe()` and `np_exists()` return `TRUE` or `FALSE`.
+`np_disconnect()` returns nothing and is called for its side effects.
+`np_listen()` invisibly returns `TRUE` if a client is connected and
+`FALSE` if a non-blocking listen is still waiting for one. `np_list()`
+returns a character vector of named pipes on the system. It is
+equivalent to list.files() on a named pipe.
 
 ## Details
 
@@ -141,7 +149,9 @@ as a server or client. When `server = TRUE`,
 pipe so that a client can connect to it. With `blocking = TRUE` the open
 waits for a client to connect; otherwise run `np_listen()` to block the
 session until one does. `np_disconnect()` drops the current client and
-discards all unread data.
+discards all unread data. The instance accepts no new client until
+`np_listen()` is called again; use `np_listen(con, blocking = FALSE)` to
+re-arm it without blocking.
 [`close()`](https://rdrr.io/r/base/connections.html) destroys the
 instance but does not disconnect first, so data already written stays
 readable by the client.

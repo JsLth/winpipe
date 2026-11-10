@@ -97,13 +97,13 @@ nobody access. See `[ace()]`.
 ## Examples
 
 ``` r
-x <- sd_create(owner = "admins") |>
-  sd_add(ace(rights = "generic all", account = "local system")) |>
-  sd_add(ace(rights = c("GR", "GW"), account = "authenticated users"))
-x
+sd <- sd_create(owner = "admins")
+sd <- sd_add(sd, ace(rights = "generic all", account = "local system"))
+sd <- sd_add(sd, ace(rights = c("GR", "GW"), account = "authenticated users"))
+sd
 #> <winpipe_sd>
 #> O:BAD:(A;;GA;;;SY)(A;;GRGW;;;AU)
-sd_build(x)
+sd_build(sd)
 #> [1] "O:BAD:(A;;GA;;;SY)(A;;GRGW;;;AU)"
 
 identical(sd_parse(sd_build(sd_default())), sd_default())

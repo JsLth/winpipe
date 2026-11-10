@@ -41,6 +41,7 @@ np_sd() returns the security descriptor.
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-book"></span> Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><a class="dropdown-item" href="../articles/http.html">HTTP over named pipes</a></li>
+    <li><a class="dropdown-item" href="../articles/compare.html">`fifo()` vs. processx vs. winpipe</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html"><span class="fa fa-search"></span> Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -171,7 +172,7 @@ If the other side is not connected, returns <code>FALSE</code>.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">np_sd</span><span class="op">(</span><span class="va">srv</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;winpipe_sd&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> O:BAG:S-1-5-21-3776380004-1005456608-3524014338-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;S-1-5-5-0-854813)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> O:BAG:S-1-5-21-3289802278-1561746829-1498425070-513D:(A;;FA;;;BA)(A;;FA;;;SY)(A;;0x1200a9;;;S-1-5-5-0-866261)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">close</a></span><span class="op">(</span><span class="va">srv</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>

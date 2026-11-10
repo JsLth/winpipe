@@ -19,8 +19,4 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Jonas Lieth <jonas.lieth@gesis.org> \[copyright holder\]
-
-Authors:
-
-- Jonas Lieth <jonas.lieth@gesis.org> \[copyright holder\]
+**Maintainer**: Jonas Lieth <jslth@outlook.com> \[copyright holder\]

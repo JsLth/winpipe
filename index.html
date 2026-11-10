@@ -51,6 +51,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fa-book"></span> Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
 <li><a class="dropdown-item" href="articles/http.html">HTTP over named pipes</a></li>
+    <li><a class="dropdown-item" href="articles/compare.html">`fifo()` vs. processx vs. winpipe</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html"><span class="fa fa-search"></span> Reference</a></li>
@@ -84,6 +85,7 @@
 <li>Includes an interface to <a href="https://learn.microsoft.com/en-us/windows/win32/secauthz/security-descriptor-definition-language" class="external-link">SDDL</a>
 </li>
 </ul>
+<p>Read the <a href="https://jslth.github.io/winpipe/articles/basics.html">introduction vignette</a> to learn more about what <a href="https://github.com/jslth/winpipe" class="external-link">winpipe</a> can do.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -103,17 +105,17 @@
 <span><span class="va">client</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/winpipe.html">winpipe</a></span><span class="op">(</span><span class="st">"a-pipe"</span>, server <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>Since winpipes are R connections, most I/O functions work out of the box. You can, for example, pass the client as a file name to <code><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">iris</span>, file <span class="op">=</span> <span class="va">client</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.table</a></span><span class="op">(</span><span class="va">iris</span>, file <span class="op">=</span> <span class="va">client</span><span class="op">)</span></span></code></pre></div>
 <p>The server can then receive the data. Depending on the permissions, this works in both directions (client → server and server → client)</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">server</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   X Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span></span>
-<span><span class="co">#&gt; 1 1          5.1         3.5          1.4         0.2  setosa</span></span>
-<span><span class="co">#&gt; 2 2          4.9         3.0          1.4         0.2  setosa</span></span>
-<span><span class="co">#&gt; 3 3          4.7         3.2          1.3         0.2  setosa</span></span>
-<span><span class="co">#&gt; 4 4          4.6         3.1          1.5         0.2  setosa</span></span>
-<span><span class="co">#&gt; 5 5          5.0         3.6          1.4         0.2  setosa</span></span>
-<span><span class="co">#&gt; 6 6          5.4         3.9          1.7         0.4  setosa</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span><span class="va">server</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   Sepal.Length Sepal.Width Petal.Length Petal.Width Species</span></span>
+<span><span class="co">#&gt; 1          5.1         3.5          1.4         0.2  setosa</span></span>
+<span><span class="co">#&gt; 2          4.9         3.0          1.4         0.2  setosa</span></span>
+<span><span class="co">#&gt; 3          4.7         3.2          1.3         0.2  setosa</span></span>
+<span><span class="co">#&gt; 4          4.6         3.1          1.5         0.2  setosa</span></span>
+<span><span class="co">#&gt; 5          5.0         3.6          1.4         0.2  setosa</span></span>
+<span><span class="co">#&gt; 6          5.4         3.9          1.7         0.4  setosa</span></span></code></pre></div>
 <p>Beware, however, that reading consumes a payload. Another call to <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code> would result in an error. You can peek a payload without consuming it using <code><a href="reference/info.html">np_peek()</a></code>. This confirms that the payload has been consumed by giving the number of bytes left to read.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/info.html">np_peek</a></span><span class="op">(</span><span class="va">server</span><span class="op">)</span></span>
@@ -140,10 +142,18 @@
 </h2>
 <ul>
 <li>
+<code><a href="https://rdrr.io/r/base/connections.html" class="external-link">fifo()</a></code> can connect to named pipes on Windows but is not well supported</li>
+<li>
 <a href="https://processx.r-lib.org/" class="external-link"><code>processx</code></a> can emulate named pipes as child processes</li>
 <li>
 <a href="https://github.com/richfitz/httppipe" class="external-link"><code>httppipe</code></a> uses <code>reticulate</code> to communicate with named pipes through Python</li>
 </ul>
+<p>See <a href="https://jslth.github.io/winpipe/articles/compare.html"><code>vignette("compare")</code></a> for a difference between <code><a href="https://rdrr.io/r/base/connections.html" class="external-link">fifo()</a></code>, <a href="https://processx.r-lib.org" class="external-link">processx</a>, and <a href="https://github.com/jslth/winpipe" class="external-link">winpipe</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="ai-use-statement">AI Use Statement<a class="anchor" aria-label="anchor" href="#ai-use-statement"></a>
+</h2>
+<p>Parts of this package’s code were drafted with assistance from Claude Sonnet 5.5. All code was reviewed, tested, and revised by the authors, who take full responsibility for its content.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

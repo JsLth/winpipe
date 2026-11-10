@@ -72,14 +72,14 @@ np_token_info(con = NULL)
 # If no argument is provided, returns the SID
 # of the R session
 np_whoami()
-#> [1] "runnervmdaln5\\runneradmin"
+#> [1] "runnervmm7ud1\\runneradmin"
 
 # If a server-client structure is provided
 # returns the SID of the client
 server <- winpipe("test")
 client <- winpipe("test")
 np_whoami(server)
-#> [1] "S-1-5-21-3776380004-1005456608-3524014338-500"
+#> [1] "S-1-5-21-3289802278-1561746829-1498425070-500"
 
 close(client)
 close(server)
