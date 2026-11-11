@@ -5,7 +5,7 @@ test_that("write-only client can connect to a one-way inbound pipe", {
   on.exit(close(reader), add = TRUE)
   name <- sub("^\\\\\\\\[.?]\\\\pipe\\\\", "", processx::conn_file_name(reader))
 
-  expect_error(winpipe(name, open = "r+", server = FALSE), "denied")
+  expect_error(winpipe(name, open = "r+", server = FALSE), "error 5")
 
   client <- winpipe(name, open = "w", server = FALSE)
   on.exit(close(client), add = TRUE)

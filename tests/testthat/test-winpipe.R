@@ -184,7 +184,7 @@ test_that("a disconnected server can be re-armed without blocking", {
   on.exit(close(cli), add = TRUE)
 
   np_disconnect(srv)
-  expect_error(winpipe("test", server = FALSE), "busy")
+  expect_error(winpipe("test", server = FALSE), "error 231")
 
   expect_false(np_listen(srv, blocking = FALSE))
   # Re-arming again while pending is harmless
